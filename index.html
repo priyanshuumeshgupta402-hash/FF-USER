@@ -1,0 +1,2583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Free Fire Pro League</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #f59e0b; --primary-dark: #d97706; --primary-light: #fef3c7;
+            --bg: #ffffff; --bg-secondary: #f9fafb; --bg-tertiary: #f3f4f6;
+            --text: #111827; --text-secondary: #6b7280; --text-muted: #9ca3af;
+            --border: #e5e7eb; --success: #10b981; --danger: #ef4444;
+            --info: #3b82f6; --gold: #f59e0b; --silver: #9ca3af; --bronze: #d97706;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            --radius: 12px; --radius-sm: 8px; --radius-lg: 16px;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg); color: var(--text); margin: 0; padding: 0;
+            display: flex; flex-direction: column; min-height: 100vh;
+            max-width: 600px; margin: 0 auto;
+            -webkit-font-smoothing: antialiased; font-size: 15px; line-height: 1.5;
+        }
+        .screen { flex-grow: 1; display: none; overflow-y: auto; padding-bottom: 80px; width: 100%; }
+        .screen.active { display: block; }
+
+        /* AUTH */
+        .auth-container {
+            padding: 60px 24px 40px; display: flex; flex-direction: column;
+            justify-content: center; min-height: 100vh; text-align: center;
+            background: linear-gradient(180deg, #fff 0%, #fffbeb 100%);
+        }
+        .app-logo {
+            width: 80px; height: 80px;
+            background: linear-gradient(135deg, var(--primary) 0%, #fb923c 100%);
+            border-radius: 22px; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px; font-size: 38px; color: #fff;
+            box-shadow: 0 8px 24px rgba(245,158,11,0.3);
+        }
+        .app-name { font-size: 26px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; margin-bottom: 6px; }
+        .app-tagline { font-size: 14px; color: var(--text-secondary); margin-bottom: 40px; line-height: 1.6; }
+        .auth-input-group { text-align: left; margin-bottom: 18px; }
+        .auth-input-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 7px; }
+        .auth-input {
+            width: 100%; padding: 14px 16px; border-radius: var(--radius-sm);
+            background: var(--bg); border: 1.5px solid var(--border);
+            color: var(--text); font-size: 15px; outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s; font-family: inherit;
+        }
+        .auth-input::placeholder { color: var(--text-muted); }
+        .auth-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(245,158,11,0.1); }
+        .auth-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, #f97316 100%);
+            color: #fff; padding: 15px; width: 100%; border: none;
+            border-radius: var(--radius-sm); font-size: 16px; font-weight: 700;
+            cursor: pointer; margin-top: 8px; font-family: inherit;
+            transition: transform 0.15s, box-shadow 0.2s;
+            box-shadow: 0 4px 14px rgba(245,158,11,0.35);
+        }
+        .auth-btn:active { transform: scale(0.98); }
+        .auth-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+        .auth-secondary-btn {
+            background: var(--bg); color: var(--text); border: 1.5px solid var(--border);
+            padding: 14px; width: 100%; border-radius: var(--radius-sm);
+            font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 12px;
+            font-family: inherit; transition: all 0.2s;
+        }
+        .auth-secondary-btn:active { background: var(--bg-tertiary); }
+        .auth-link { margin-top: 22px; font-size: 14px; color: var(--text-secondary); }
+        .auth-link span { color: var(--primary); cursor: pointer; font-weight: 700; }
+
+        /* HEADER */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 18px; background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header-title { font-size: 17px; font-weight: 700; flex-grow: 1; text-align: center; color: var(--text); }
+        .header-left { display: flex; align-items: center; min-width: 90px; gap: 12px; }
+        .header-actions { display: flex; align-items: center; min-width: 90px; justify-content: flex-end; gap: 10px; }
+        .menu-toggle, .back-button { font-size: 19px; cursor: pointer; color: var(--text); padding: 4px; }
+        .wallet-button {
+            background: linear-gradient(135deg, var(--primary) 0%, #f97316 100%);
+            color: #fff; padding: 7px 14px; border-radius: 20px;
+            font-weight: 700; font-size: 13px; display: flex; align-items: center;
+            cursor: pointer; box-shadow: 0 2px 8px rgba(245,158,11,0.25);
+            white-space: nowrap;
+        }
+        .notification-icon-container { position: relative; cursor: pointer; padding: 4px; }
+        .notification-icon { font-size: 19px; color: var(--text); }
+        .notification-badge {
+            position: absolute; top: 0; right: 0; background: var(--danger);
+            width: 9px; height: 9px; border-radius: 50%;
+            border: 2px solid var(--bg); display: none;
+        }
+        .content-area { padding: 20px 18px; }
+        .section-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 14px; margin-top: 24px; }
+
+        /* SLIDER */
+        .slider-container {
+            width: 100%; aspect-ratio: 16/9; overflow: hidden;
+            border-radius: var(--radius); margin-bottom: 24px;
+            position: relative; box-shadow: var(--shadow-md); background: var(--bg-tertiary);
+        }
+        .slide-wrapper { display: flex; width: 300%; height: 100%; transition: transform 0.5s cubic-bezier(0.4,0,0.2,1); }
+        .slide-item {
+            width: 33.33%; flex-shrink: 0; display: flex;
+            justify-content: center; align-items: center;
+            background-size: cover; background-position: center;
+            position: relative; cursor: pointer;
+        }
+        .slide-item::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.5) 100%);
+        }
+        .slide-item span {
+            position: relative; z-index: 2; color: #fff; font-weight: 700;
+            font-size: 16px; text-align: center; padding: 0 20px;
+        }
+
+        /* PRO GAME CARDS (SCREENSHOT STYLE WITH BIG BANNER IMAGES) */
+        .game-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+        .game-card {
+            background: var(--bg); border-radius: var(--radius);
+            overflow: hidden; border: 1.5px solid var(--border); cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s;
+            position: relative; box-shadow: var(--shadow-sm);
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .game-card:hover { border-color: var(--primary); box-shadow: var(--shadow-md); }
+        .game-card:active { transform: scale(0.98); }
+        
+        .card-img-banner {
+            width: 100%; aspect-ratio: 16/10; background: var(--bg-tertiary);
+            position: relative; background-size: cover; background-position: center;
+        }
+        .card-img-banner::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.1) 40%, rgba(17,24,39,0.9) 100%);
+        }
+        .match-tag-badge {
+            position: absolute; top: 8px; left: 8px;
+            background: var(--text); color: #fff;
+            padding: 2px 7px; font-weight: 700; font-size: 10px;
+            border-radius: 5px; z-index: 2;
+        }
+        .match-mode-pill {
+            position: absolute; top: 8px; right: 8px;
+            padding: 2px 7px; font-weight: 700; font-size: 10px;
+            border-radius: 5px; z-index: 2; text-transform: uppercase;
+        }
+        
+        .card-details-padding { padding: 12px; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; }
+        .game-title { font-size: 13.5px; font-weight: 800; color: var(--text); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .card-footer-row { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+        .slots-indicator { font-size: 11px; color: var(--success); font-weight: 700; display: flex; align-items: center; gap: 4px; }
+        .slots-indicator::before { content: ''; width: 7px; height: 7px; background: var(--success); border-radius: 50%; display: inline-block; }
+        .game-prize {
+            font-size: 11.5px; color: var(--primary-dark); font-weight: 700;
+            background: var(--primary-light); padding: 4px 8px; border-radius: 6px;
+        }
+
+        /* BOTTOM NAV */
+        .bottom-nav {
+            display: none; justify-content: space-around;
+            background: var(--bg); padding: 8px 0 10px;
+            border-top: 1px solid var(--border);
+            position: fixed; bottom: 0; width: 100%; max-width: 600px;
+            z-index: 200; box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+        }
+        .bottom-nav.visible { display: flex; }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center;
+            color: var(--text-muted); font-size: 10px; font-weight: 600;
+            text-decoration: none; padding: 4px; flex: 1;
+            cursor: pointer; transition: color 0.2s; min-width: 50px; gap: 3px;
+        }
+        .nav-icon { font-size: 19px; }
+        .nav-item.active { color: var(--primary); }
+        .trophy-icon {
+            background: linear-gradient(135deg, var(--primary) 0%, #f97316 100%);
+            color: #fff; border-radius: 50%; width: 48px; height: 48px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; margin-top: -22px;
+            box-shadow: 0 4px 14px rgba(245,158,11,0.4);
+            border: 4px solid var(--bg);
+        }
+        .nav-item.trophy-item { color: transparent; }
+
+        /* SIDE MENU */
+        .side-menu {
+            position: fixed; top: 0; left: -85%; width: 82%; max-width: 300px;
+            height: 100%; background: var(--bg);
+            transition: left 0.3s cubic-bezier(0.4,0,0.2,1);
+            z-index: 1001; overflow-y: auto;
+            box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+        }
+        .side-menu.open { left: 0; }
+        .menu-profile-card {
+            padding: 32px 20px; text-align: center;
+            background: linear-gradient(135deg, var(--primary) 0%, #f97316 100%);
+            color: #fff;
+        }
+        .menu-profile-card .avatar-header {
+            width: 64px; height: 64px; font-size: 22px; margin: 0 auto 12px;
+            background: #fff; color: var(--primary); border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-weight: 800; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .menu-profile-card .user-name { font-weight: 700; font-size: 17px; margin-bottom: 4px; }
+        .menu-profile-card .user-uid { font-size: 13px; opacity: 0.85; }
+        .menu-nav-item {
+            display: flex; align-items: center; padding: 15px 22px;
+            color: var(--text); text-decoration: none; font-size: 15px;
+            font-weight: 500; cursor: pointer; transition: background 0.15s; gap: 14px;
+        }
+        .menu-nav-item:hover, .menu-nav-item.active { background: var(--bg-tertiary); color: var(--primary); }
+        .menu-nav-item i { font-size: 18px; width: 22px; text-align: center; color: var(--text-secondary); }
+        .menu-nav-item:hover i, .menu-nav-item.active i { color: var(--primary); }
+
+        /* WALLET */
+        .balance-container {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-radius: var(--radius-lg); padding: 24px;
+            margin-bottom: 24px; border: 1.5px solid #fde68a;
+        }
+        .balance-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid rgba(245,158,11,0.15); font-size: 15px;
+        }
+        .balance-row:last-child { border-bottom: none; }
+        .balance-label { color: var(--text-secondary); font-weight: 500; }
+        .balance-value { font-weight: 700; color: var(--text); }
+        .total-balance-row .balance-value { color: var(--primary-dark); font-size: 24px; }
+        .total-balance-row .balance-label { font-weight: 700; color: var(--text); font-size: 16px; }
+        .add-amount-button {
+            display: flex; justify-content: center; align-items: center;
+            padding: 15px; background: linear-gradient(135deg, var(--primary) 0%, #f97316 100%);
+            color: #fff; border-radius: var(--radius-sm); font-size: 15px;
+            font-weight: 700; margin-top: 16px; cursor: pointer;
+            box-shadow: 0 4px 14px rgba(245,158,11,0.3); transition: transform 0.15s; gap: 8px;
+        }
+        .add-amount-button:active { transform: scale(0.98); }
+        .add-amount-button.secondary {
+            background: linear-gradient(135deg, var(--info) 0%, #2563eb 100%);
+            box-shadow: 0 4px 14px rgba(59,130,246,0.3); margin-top: 10px;
+        }
+        .primary-recharge-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, #f97316 100%);
+            color: #fff; padding: 15px; border-radius: var(--radius-sm);
+            font-weight: 700; font-size: 15px; width: 100%; border: none;
+            cursor: pointer; transition: transform 0.15s; font-family: inherit;
+            box-shadow: 0 4px 14px rgba(245,158,11,0.3);
+        }
+        .primary-recharge-btn:active { transform: scale(0.98); }
+        .primary-recharge-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+        .transaction-title { font-size: 16px; font-weight: 700; color: var(--text); margin-top: 24px; margin-bottom: 12px; }
+        .wallet-history-buttons { display: flex; gap: 10px; margin-bottom: 16px; }
+        .wallet-history-btn {
+            flex: 1; padding: 11px; border-radius: var(--radius-sm);
+            font-weight: 600; font-size: 13px; border: 1.5px solid var(--border);
+            cursor: pointer; background: var(--bg); color: var(--text-secondary);
+            transition: all 0.2s; font-family: inherit;
+        }
+        .wallet-history-btn.active-history-btn { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+        /* MATCH DETAILS */
+        .md-screen-bg { background: var(--bg-secondary); }
+        .md-card {
+            background: var(--bg); margin: 16px; border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md); overflow: hidden;
+        }
+        .md-image-container { width: 100%; height: 200px; background: var(--bg-tertiary); }
+        .md-image-container img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .md-content-area { padding: 18px; }
+        .md-title-area { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 18px; }
+        .md-game-icon { width: 44px; height: 44px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+        .md-content-area #md-title { font-size: 19px; font-weight: 700; color: var(--text); margin: 0 0 4px; line-height: 1.3; }
+        .md-content-area #md-date-time { font-size: 13px; color: var(--text-secondary); margin: 0; }
+        .rules-btn {
+            background: var(--bg-tertiary); color: var(--primary-dark);
+            border: 1.5px solid var(--primary); padding: 10px 14px;
+            font-size: 13px; font-weight: 700; border-radius: var(--radius-sm);
+            cursor: pointer; margin-bottom: 16px; width: 100%;
+            font-family: inherit; transition: background 0.2s;
+        }
+        .rules-btn:active { background: var(--primary-light); }
+        .md-stats-row {
+            display: flex; justify-content: space-between; text-align: center;
+            padding: 14px 0; border-bottom: 1px solid var(--border);
+        }
+        .md-stats-row:last-of-type { border-bottom: none; }
+        .md-stat-item { flex: 1; padding: 0 4px; }
+        .md-stat-item span { display: block; font-size: 11px; color: var(--text-secondary); margin-bottom: 5px; font-weight: 500; }
+        .md-stat-item strong { display: block; font-size: 15px; font-weight: 700; color: var(--text); }
+        .md-stat-item .entry-fee-color { color: var(--primary-dark); }
+        .prize-first { color: #d97706 !important; }
+        .prize-second { color: #6b7280 !important; }
+        .prize-third { color: #b45309 !important; }
+        .md-footer-cta {
+            padding: 16px; background: var(--bg-tertiary);
+            border-top: 1px solid var(--border);
+            display: flex; align-items: center; gap: 16px;
+        }
+        .md-progress-area { flex-grow: 1; }
+        .md-progress-bar { width: 100%; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+        .md-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary) 0%, #f97316 100%); border-radius: 4px; transition: width 0.5s ease; }
+        .md-progress-text { display: flex; justify-content: space-between; font-size: 12px; margin-top: 6px; color: var(--text-secondary); }
+        .md-progress-text #md-player-count { font-weight: 700; color: var(--text); }
+        .md-join-button {
+            padding: 12px 26px; font-size: 15px; font-weight: 700;
+            border-radius: var(--radius-sm); border: none; cursor: pointer;
+            text-transform: uppercase; transition: all 0.2s; font-family: inherit;
+        }
+        .md-join-button.available { background: linear-gradient(135deg, var(--primary) 0%, #f97316 100%); color: #fff; box-shadow: 0 4px 14px rgba(245,158,11,0.3); }
+        .md-join-button.joined { background: var(--success); color: #fff; }
+        .md-join-button.disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
+
+        /* FORMS & MODALS */
+        .form-card {
+            background: var(--bg); border-radius: var(--radius-lg);
+            padding: 24px; margin-bottom: 20px; border: 1.5px solid var(--border);
+        }
+        .form-input-group { margin-bottom: 18px; }
+        .form-input-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 7px; }
+        .form-input {
+            width: 100%; padding: 13px 14px; border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border); background: var(--bg);
+            color: var(--text); font-size: 15px; font-family: inherit;
+            outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(245,158,11,0.1); }
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+            z-index: 2000; display: none; justify-content: center;
+            align-items: center; padding: 20px; backdrop-filter: blur(3px);
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: var(--bg); width: 100%; max-width: 400px;
+            border-radius: var(--radius-lg); padding: 22px;
+            box-shadow: var(--shadow-lg); max-height: 90vh; overflow-y: auto;
+            animation: modalIn 0.2s ease;
+        }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 17px; font-weight: 700; margin-bottom: 20px; color: var(--text);
+        }
+        .modal-close { cursor: pointer; font-size: 20px; color: var(--text-secondary); padding: 4px; }
+
+        /* DIRECT FILE UPLOAD BOX */
+        .upload-box-area {
+            border: 2px dashed var(--primary);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            text-align: center;
+            background: var(--bg);
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: background 0.2s;
+        }
+        .upload-box-area:active { background: var(--primary-light); }
+        .upload-preview-img {
+            max-width: 100%;
+            max-height: 160px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid var(--border);
+        }
+
+        /* SEAT SELECTION */
+        .seat-modal-content { max-width: 420px; }
+        .seat-legend {
+            display: flex; justify-content: space-around; margin-bottom: 16px;
+            padding: 12px; background: var(--bg-tertiary); border-radius: var(--radius-sm);
+            font-size: 12px; font-weight: 500;
+        }
+        .legend-item { display: flex; align-items: center; color: var(--text-secondary); gap: 6px; }
+        .legend-color { width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--border); }
+        .legend-color.available { background: var(--bg); }
+        .legend-color.occupied { background: var(--danger); border-color: var(--danger); }
+        .legend-color.selected { background: var(--info); border-color: var(--info); }
+        .seat-grid {
+            display: grid; grid-template-columns: repeat(6, 1fr); gap: 7px;
+            padding: 12px; background: var(--bg-tertiary);
+            border-radius: var(--radius-sm); max-height: 280px;
+            overflow-y: auto; margin-bottom: 16px;
+        }
+        .seat-btn {
+            padding: 11px 4px; border: 1.5px solid var(--border);
+            border-radius: 6px; font-weight: 700; font-size: 13px;
+            cursor: pointer; transition: all 0.15s; text-align: center;
+            background: var(--bg); color: var(--text); font-family: inherit;
+        }
+        .seat-btn.available { background: var(--bg); }
+        .seat-btn.available.selected { background: var(--info); border-color: var(--info); color: #fff; }
+        .seat-btn.occupied { background: var(--danger); color: #fff; border-color: var(--danger); cursor: not-allowed; text-decoration: line-through; opacity: 0.7; }
+        .seat-btn[disabled]:not(.occupied) { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
+
+        /* RECHARGE & TIMER */
+        .recharge-content-area { padding: 20px 18px; }
+        .recharge-card {
+            background: var(--bg); border-radius: var(--radius-lg);
+            padding: 24px; margin-bottom: 20px;
+            border: 1.5px solid var(--border); text-align: center;
+        }
+        .timer-banner {
+            background: #fef2f2; border: 1.5px solid #fecaca;
+            color: var(--danger); padding: 12px 16px;
+            border-radius: var(--radius-sm); font-weight: 800;
+            font-size: 16px; text-align: center; margin-bottom: 16px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+        .amount-input-box-v2 {
+            display: flex; align-items: center; border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm); padding: 12px 16px;
+            margin: 8px 0 10px; background: var(--bg); transition: border-color 0.2s;
+        }
+        .amount-input-box-v2:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(245,158,11,0.1); }
+        .amount-input-box-v2 i { font-size: 18px; color: var(--primary); margin-right: 10px; }
+        .amount-input-box-v2 input {
+            flex-grow: 1; background: transparent; border: none;
+            color: var(--text); font-size: 20px; font-weight: 700;
+            width: 100px; outline: none; font-family: inherit;
+        }
+        .amount-limits { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
+        .amount-options { display: flex; flex-wrap: wrap; justify-content: center; gap: 9px; margin-bottom: 20px; }
+        .amount-option-btn {
+            padding: 9px 16px; border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm); font-size: 14px; cursor: pointer;
+            transition: all 0.2s; color: var(--text); background: var(--bg);
+            font-weight: 600; font-family: inherit;
+        }
+        .amount-option-btn.selected { border-color: var(--primary); background: var(--primary); color: #fff; }
+        .recharge-amount-display { font-size: 26px; font-weight: 800; color: var(--primary-dark); text-align: center; margin-bottom: 14px; }
+        .payment-method {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px; border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm); margin-bottom: 10px;
+            cursor: pointer; transition: all 0.2s; background: var(--bg);
+        }
+        .payment-method.selected { border-color: var(--primary); background: var(--primary-light); box-shadow: 0 0 0 2px rgba(245,158,11,0.15); }
+        .payment-method-details { display: flex; align-items: center; font-size: 15px; font-weight: 600; gap: 12px; }
+        .payment-method-details img { height: 28px; width: 28px; object-fit: contain; border-radius: 4px; }
+        .radio-button { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border); transition: all 0.2s; }
+        .payment-method.selected .radio-button { border-color: var(--primary); background: var(--primary); box-shadow: inset 0 0 0 3px #fff; }
+        .qr-code-box {
+            background: #fff; padding: 12px; height: 190px; width: 190px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 13px; color: var(--text-secondary);
+            margin: 0 auto 14px auto; border-radius: var(--radius);
+            border: 2px solid var(--primary);
+            box-shadow: 0 4px 14px rgba(245,158,11,0.15);
+        }
+        .qr-code-box img { width: 100%; height: 100%; object-fit: contain; }
+        .upi-pay-direct-btn {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            background: #10b981; color: #fff; text-decoration: none;
+            padding: 12px 16px; border-radius: var(--radius-sm);
+            font-weight: 700; font-size: 14px; margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(16,185,129,0.25);
+        }
+        .payment-info-v2 { text-align: center; color: var(--text); margin-bottom: 16px; font-size: 14px; }
+        .payment-info-v2 div { margin-bottom: 6px; }
+        .payment-info-v2 span { color: var(--text-secondary); }
+        .payment-info-v2 strong { color: var(--primary-dark); font-size: 15px; }
+        .action-button-row { display: flex; justify-content: space-around; margin: 12px 0 20px; gap: 12px; }
+        .action-button-row button {
+            padding: 10px 16px; background: var(--bg-tertiary); color: var(--text);
+            border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+            font-weight: 600; cursor: pointer; flex: 1; font-size: 13px;
+            font-family: inherit; transition: background 0.2s;
+        }
+        .action-button-row button:active { background: var(--border); }
+        .utr-section-v2 { background: var(--bg-tertiary); padding: 16px; border-radius: var(--radius-sm); margin-top: 16px; text-align: left; }
+        .utr-step { border-left: 2px solid var(--info); padding-left: 18px; position: relative; margin-bottom: 14px; }
+        .utr-step:last-child { margin-bottom: 0; }
+        .utr-step::before {
+            content: '\f058'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+            position: absolute; left: -10px; top: 0; color: #fff;
+            background: var(--info); border-radius: 50%; width: 20px; height: 20px;
+            display: flex; justify-content: center; align-items: center; font-size: 11px;
+        }
+        .utr-step-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+        .utr-step-desc { font-size: 12px; color: var(--text-secondary); }
+        .utr-input {
+            width: 100%; padding: 12px; border-radius: var(--radius-sm);
+            border: 1.5px solid var(--info); background: var(--bg);
+            color: var(--text); box-sizing: border-box; margin: 12px 0;
+            font-size: 15px; font-family: inherit; outline: none;
+        }
+        .submit-buttons { display: flex; gap: 10px; }
+        .submit-buttons .primary-recharge-btn { flex: 1; margin: 0; }
+        .submit-buttons .cancel-btn { background: var(--bg); color: var(--danger); border: 1.5px solid var(--danger); box-shadow: none; }
+
+        /* LEADERBOARD */
+        .leaderboard-tabs { display: flex; background: var(--bg); border-radius: var(--radius-sm); margin-bottom: 20px; padding: 4px; border: 1.5px solid var(--border); }
+        .tab-item { flex: 1; text-align: center; padding: 10px; font-size: 13px; cursor: pointer; color: var(--text-secondary); font-weight: 600; transition: all 0.2s; border-radius: 6px; }
+        .tab-item.active { background: var(--primary); color: #fff; }
+        .top-3-container {
+            display: flex; justify-content: space-around; align-items: flex-end;
+            text-align: center; margin-bottom: 20px; padding: 20px 10px 10px;
+            background: var(--bg); border-radius: var(--radius-lg);
+            min-height: 160px; border: 1.5px solid var(--border);
+        }
+        .top-user { flex: 1; padding: 6px; }
+        .rank-1-card { order: 2; transform: translateY(-12px); }
+        .rank-2-card { order: 1; }
+        .rank-3-card { order: 3; }
+        .top-rank-badge { color: var(--gold); margin-bottom: 6px; }
+        .rank-2-card .top-rank-badge { color: var(--silver); }
+        .rank-3-card .top-rank-badge { color: var(--bronze); }
+        .top-avatar {
+            width: 52px; height: 52px; border-radius: 50%;
+            background: var(--primary-light); color: var(--primary-dark);
+            display: flex; justify-content: center; align-items: center;
+            font-weight: 800; font-size: 18px; margin: 0 auto 6px;
+            border: 3px solid var(--gold); box-shadow: var(--shadow-sm);
+        }
+        .rank-2-card .top-avatar { border-color: var(--silver); }
+        .rank-3-card .top-avatar { border-color: var(--bronze); }
+        .top-name { font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .top-winnings { font-size: 13px; color: var(--success); font-weight: 700; }
+        .leaderboard-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 13px 14px; border-bottom: 1px solid var(--border);
+            font-size: 14px; background: var(--bg);
+            border-radius: var(--radius-sm); margin-bottom: 6px; border: 1px solid var(--border);
+        }
+        .rank { width: 32px; text-align: center; font-weight: 700; color: var(--text-secondary); }
+        .user-info { display: flex; align-items: center; flex-grow: 1; gap: 10px; }
+        .lb-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: var(--bg-tertiary); color: var(--text-secondary);
+            display: flex; justify-content: center; align-items: center;
+            font-size: 12px; font-weight: 700;
+        }
+        .lb-name { font-weight: 600; }
+        .winnings { color: var(--success); font-weight: 700; }
+        .my-rank { background: var(--primary-light); border-radius: var(--radius-sm); padding: 14px; border: 1.5px solid var(--primary); margin-bottom: 14px; }
+        .my-rank .rank { color: var(--primary-dark); }
+        .my-rank .leaderboard-item { border: none; background: transparent; margin-bottom: 0; padding: 8px 0; }
+
+        /* PROFILE */
+        .profile-card {
+            background: var(--bg); border-radius: var(--radius-lg);
+            padding: 28px; text-align: center; margin-bottom: 20px;
+            border: 1.5px solid var(--border); box-shadow: var(--shadow-sm);
+        }
+        .profile-avatar {
+            width: 84px; height: 84px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, #f97316 100%);
+            color: #fff; display: flex; justify-content: center; align-items: center;
+            font-size: 32px; font-weight: 800; margin: 0 auto 12px;
+            box-shadow: 0 6px 20px rgba(245,158,11,0.3);
+        }
+        .profile-name { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 5px; }
+        .profile-name i { font-size: 14px; color: var(--text-muted); margin-left: 6px; cursor: pointer; }
+        .profile-email { font-size: 14px; color: var(--text-secondary); margin-bottom: 18px; }
+        .menu-item-list { background: var(--bg); border-radius: var(--radius-lg); margin-bottom: 20px; border: 1.5px solid var(--border); padding: 0 16px; }
+        .menu-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 17px 0; border-bottom: 1px solid var(--border);
+            font-size: 15px; color: var(--text); text-decoration: none;
+            cursor: pointer; transition: background 0.15s;
+        }
+        .menu-item:last-child { border-bottom: none; }
+        .menu-item:active { background: var(--bg-tertiary); }
+        .menu-item-left { display: flex; align-items: center; gap: 14px; }
+        .menu-icon { font-size: 18px; color: var(--text-secondary); width: 22px; text-align: center; }
+        .toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; inset: 0;
+            background: var(--border); transition: 0.3s; border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 18px; width: 18px;
+            left: 3px; bottom: 3px; background: #fff; transition: 0.3s;
+            border-radius: 50%; box-shadow: var(--shadow-sm);
+        }
+        input:checked + .slider { background: var(--primary); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* EARNINGS */
+        .earnings-summary-card {
+            background: var(--bg); border-radius: var(--radius-lg);
+            padding: 26px; text-align: center; margin-bottom: 20px;
+            border: 1.5px solid var(--border);
+        }
+        .earnings-icon { font-size: 38px; color: var(--success); margin-bottom: 12px; }
+        .earnings-description { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
+        .earnings-data-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 15px;
+        }
+        .data-label { color: var(--text-secondary); }
+        .data-value { font-weight: 700; color: var(--text); }
+        .data-value.total { color: var(--success); font-size: 20px; }
+        .view-history-link { display: block; margin-top: 16px; color: var(--primary-dark); font-size: 14px; text-decoration: none; font-weight: 700; cursor: pointer; }
+
+        /* REFER */
+        .refer-card {
+            background: var(--bg); border-radius: var(--radius-lg);
+            padding: 26px; text-align: center; margin-bottom: 20px;
+            border: 1.5px solid var(--border);
+        }
+        .refer-code-box {
+            background: var(--bg-tertiary); border: 1.5px dashed var(--primary);
+            border-radius: var(--radius-sm); padding: 16px; margin-top: 20px;
+            text-align: center; cursor: pointer;
+        }
+        .refer-code-box:active { background: var(--border); }
+        .refer-code-box span { font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 6px; }
+        .refer-code-box .code-line { display: flex; justify-content: space-between; align-items: center; }
+        .refer-code-box strong { font-size: 20px; color: var(--primary-dark); font-family: 'Courier New', monospace; letter-spacing: 1px; }
+        .copy-btn {
+            background: var(--primary); color: #fff; border: none;
+            border-radius: 6px; padding: 7px 12px; cursor: pointer;
+            font-size: 13px; font-weight: 600; font-family: inherit;
+        }
+        .refer-link-box {
+            background: var(--bg-tertiary); border-radius: var(--radius-sm);
+            padding: 14px; margin-top: 14px; text-align: left; cursor: pointer;
+        }
+        .refer-link-box:active { background: var(--border); }
+        .refer-link-box span { font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 5px; }
+        .refer-link-box .link-line { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .refer-link-box .link-line span { font-size: 13px; color: var(--text); word-break: break-all; font-family: monospace; }
+        .social-share-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 16px; }
+        .social-share-btn {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; padding: 14px 8px;
+            background: var(--bg); border-radius: var(--radius-sm);
+            text-decoration: none; color: var(--text); font-size: 11px;
+            font-weight: 600; transition: transform 0.15s; cursor: pointer;
+            border: 1.5px solid var(--border); gap: 6px;
+        }
+        .social-share-btn:active { transform: scale(0.96); }
+        .social-share-btn i { font-size: 22px; }
+        .social-share-btn.whatsapp i { color: #25D366; }
+        .social-share-btn.telegram i { color: #0088cc; }
+        .social-share-btn.facebook i { color: #1877F2; }
+        .social-share-btn.more i { color: var(--text-secondary); }
+
+        /* NOTIFICATIONS */
+        .notification-item {
+            background: var(--bg); padding: 16px; margin-bottom: 10px;
+            border-radius: var(--radius-sm); border-left: 4px solid var(--primary);
+            border: 1.5px solid var(--border); border-left-width: 4px;
+        }
+        .notification-item.personal { border-left-color: #a371f7; }
+        .notification-item .notif-header { display: flex; justify-content: space-between; margin-bottom: 6px; align-items: flex-start; gap: 8px; }
+        .notification-item .notif-title { font-weight: 700; font-size: 15px; color: var(--text); }
+        .notification-item .notif-time { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+        .notification-item .notif-body { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+        .notif-tag {
+            display: inline-block; padding: 2px 7px; border-radius: 4px;
+            font-size: 9px; color: #fff; font-weight: 700; margin-right: 6px;
+            vertical-align: middle; background: #a371f7;
+        }
+
+        /* CONFIRMATION */
+        .confirmation-card {
+            background: var(--bg); border-radius: var(--radius-lg);
+            padding: 32px; text-align: center; margin-top: 30px;
+            border: 1.5px solid var(--border);
+        }
+        .confirmation-card i { font-size: 54px; color: var(--success); margin-bottom: 18px; }
+        .confirmation-card h2 { color: var(--text); margin-bottom: 10px; font-size: 22px; }
+        .room-details-box {
+            background: var(--bg-tertiary); padding: 18px;
+            border-radius: var(--radius-sm); margin: 20px 0; text-align: left;
+        }
+        .room-details-box div { padding: 7px 0; font-size: 15px; font-weight: 700; color: var(--primary-dark); }
+        .room-details-box span { font-weight: 500; color: var(--text-secondary); display: inline-block; width: 100px; }
+
+        /* MISC */
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+        .empty-state i { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
+        .empty-state p { margin: 0; font-size: 14px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+    <!-- UPDATE MODAL -->
+    <div id="update-modal" class="modal-overlay" style="z-index: 9999;">
+        <div class="modal-content" style="text-align: center;">
+            <div style="width: 70px; height: 70px; background: linear-gradient(135deg, var(--primary) 0%, #f97316 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 8px 24px rgba(245,158,11,0.3);">
+                <i class="fas fa-rocket" style="font-size: 32px; color: #fff;"></i>
+            </div>
+            <h2 style="color: var(--text); margin-bottom: 10px; font-weight: 800;">New Update Available!</h2>
+            <p id="update-msg-text" style="color: var(--text-secondary); margin-bottom: 25px;">Please update the app to continue playing.</p>
+            <button class="primary-recharge-btn" onclick="openUpdateLink()">UPDATE NOW</button>
+        </div>
+    </div>
+
+    <!-- EDIT PROFILE MODAL -->
+    <div id="edit-profile-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                Edit Profile
+                <i class="fas fa-times modal-close" onclick="closeEditProfileModal()"></i>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="color: var(--text-secondary); font-size: 13px; font-weight: 600;">Full Name</label>
+                <input type="text" id="edit-profile-name" class="form-input" placeholder="Enter your full name" style="margin-top: 6px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="color: var(--text-secondary); font-size: 13px; font-weight: 600;">Phone Number</label>
+                <input type="text" id="edit-profile-phone" class="form-input" placeholder="Enter your phone number" style="margin-top: 6px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="color: var(--text-secondary); font-size: 13px; font-weight: 600;">Email</label>
+                <input type="email" id="edit-profile-email" class="form-input" placeholder="Enter your email" style="margin-top: 6px;">
+            </div>
+            <button class="primary-recharge-btn" onclick="saveProfileChanges()">Save Changes</button>
+        </div>
+    </div>
+
+    <!-- AUTH SCREENS -->
+    <div id="welcome-screen" class="screen active">
+        <div class="auth-container">
+            <div class="app-logo"><i class="fas fa-fire"></i></div>
+            <div class="app-name">FREE FIRE PRO LEAGUE</div>
+            <div class="app-tagline">Play tournaments, compete with pros<br>and earn real rewards.</div>
+            <button class="auth-btn" onclick="goToScreen('login-screen')">Login</button>
+            <button class="auth-secondary-btn" onclick="goToScreen('signup-screen')">Create Account</button>
+            <div style="margin-top: 30px; font-size: 12px; color: var(--text-muted);">
+                By continuing, you agree to our Terms & Conditions
+            </div>
+        </div>
+    </div>
+
+    <div id="login-screen" class="screen">
+        <div class="auth-container">
+            <div style="margin-bottom: 30px;">
+                <div style="font-size: 28px; font-weight: 800; color: var(--text); margin-bottom: 6px;">Welcome Back</div>
+                <div style="font-size: 14px; color: var(--text-secondary);">Sign in to continue</div>
+            </div>
+            <div class="auth-input-group">
+                <label>Email Address</label>
+                <input type="text" id="login-contact" class="auth-input" placeholder="Enter your email" autocomplete="email">
+            </div>
+            <div class="auth-input-group">
+                <label>Password</label>
+                <input type="password" id="login-password" class="auth-input" placeholder="Enter your password" autocomplete="current-password">
+            </div>
+            <div style="text-align: right; margin-bottom: 20px; font-size: 13px; color: var(--primary); cursor: pointer; font-weight: 600;">Forgot Password?</div>
+            <button class="auth-btn" id="login-btn" onclick="handleLogin()">Login</button>
+            <div class="auth-link">
+                Don't have an account? <span onclick="goToScreen('signup-screen')">Sign Up</span>
+            </div>
+            <div class="auth-link" style="margin-top: 24px;">
+                <span onclick="goToScreen('welcome-screen')" style="color: var(--text-muted); font-weight: 500;"><i class="fas fa-arrow-left"></i> Back</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="signup-screen" class="screen">
+        <div class="auth-container" style="padding-top: 30px;">
+            <div style="margin-bottom: 25px;">
+                <div style="font-size: 28px; font-weight: 800; color: var(--text); margin-bottom: 6px;">Create Account</div>
+                <div style="font-size: 14px; color: var(--text-secondary);">Join the league and start earning</div>
+            </div>
+            <div class="auth-input-group">
+                <label>Full Name</label>
+                <input type="text" id="signup-name" class="auth-input" placeholder="Enter full name" autocomplete="name">
+            </div>
+            <div class="auth-input-group">
+                <label>Email Address</label>
+                <input type="text" id="signup-contact" class="auth-input" placeholder="Enter email address" autocomplete="email">
+            </div>
+            <div class="auth-input-group">
+                <label>Password</label>
+                <input type="password" id="signup-password" class="auth-input" placeholder="Create password (min 6 chars)" autocomplete="new-password">
+            </div>
+            <div class="auth-input-group">
+                <label>Referral Code (Optional)</label>
+                <input type="text" id="signup-referral" class="auth-input" placeholder="Enter referral code">
+            </div>
+            <button class="auth-btn" id="signup-btn" onclick="handleSignup()">Sign Up</button>
+            <div class="auth-link">
+                Already have an account? <span onclick="goToScreen('login-screen')">Login</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SIDE MENU -->
+    <div id="side-menu-overlay" class="modal-overlay" onclick="toggleSideMenu()">
+        <div id="side-menu" class="side-menu" onclick="event.stopPropagation()">
+            <div class="menu-profile-card">
+                <div class="avatar-header" id="menu-avatar">FF</div>
+                <div class="user-name" id="menu-username">Player</div>
+                <div class="user-uid">UID: <span id="user-uid-display">Loading...</span></div>
+            </div>
+            <a class="menu-nav-item" data-screen="home-screen" onclick="navigateToScreen('home-screen')"><i class="fas fa-home"></i> Home</a>
+            <a class="menu-nav-item" data-screen="wallet-screen" onclick="navigateToScreen('wallet-screen')"><i class="fas fa-wallet"></i> Wallet</a>
+            <a class="menu-nav-item" data-screen="leaderboard-screen" onclick="navigateToScreen('leaderboard-screen')"><i class="fas fa-trophy"></i> Leaderboard</a>
+            <a class="menu-nav-item" data-screen="earnings-screen" onclick="navigateToScreen('earnings-screen')"><i class="fas fa-dollar-sign"></i> Earnings</a>
+            <a class="menu-nav-item" data-screen="profile-screen" onclick="navigateToScreen('profile-screen')"><i class="fas fa-user"></i> Profile</a>
+            <hr style="border: none; border-top: 1px solid var(--border); margin: 8px 22px;">
+            <a class="menu-nav-item" style="color: var(--danger);" onclick="handleLogout()"><i class="fas fa-sign-out-alt" style="color: var(--danger);"></i> Logout</a>
+        </div>
+    </div>
+
+    <!-- NOTIFICATIONS SCREEN -->
+    <div id="notifications-screen" class="screen">
+        <div class="header">
+            <div class="header-left"><i class="fas fa-arrow-left back-button" onclick="goToScreen('home-screen')"></i></div>
+            <div class="header-title">Notifications</div>
+            <div class="header-actions"></div>
+        </div>
+        <div class="content-area" id="notification-list">
+            <div class="empty-state"><i class="fas fa-bell-slash"></i><p>Loading notifications...</p></div>
+        </div>
+    </div>
+
+    <!-- HOME SCREEN -->
+    <div id="home-screen" class="screen">
+        <div class="header">
+            <div class="header-left"><i class="fas fa-bars menu-toggle" onclick="toggleSideMenu()"></i></div>
+            <div class="header-title">Home</div>
+            <div class="header-actions">
+                <div class="notification-icon-container" onclick="openNotifications()">
+                    <i class="fas fa-bell notification-icon"></i>
+                    <span id="notif-badge-home" class="notification-badge"></span>
+                </div>
+                <div class="wallet-button" onclick="goToScreen('wallet-screen')">
+                    <i class="fas fa-wallet" style="margin-right: 5px; font-size: 12px;"></i>₹<span id="header-balance">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="content-area">
+            <!-- AUTO SCROLL SLIDER CONTAINER -->
+            <div class="slider-container">
+                <div class="slide-wrapper" id="home-slider-wrapper">
+                    <div class="slide-item" style="background: linear-gradient(135deg, #fef3c7, #fde68a);">
+                        <span style="color: var(--text);">Welcome to Free Fire Pro League</span>
+                    </div>
+                </div>
+            </div>
+            <div class="section-title" style="margin-top: 0;">🔥 Active Tournaments</div>
+            <div class="game-grid" id="dynamic-game-grid">
+                <div class="empty-state" style="grid-column: span 2;"><i class="fas fa-gamepad"></i><p>Loading tournaments...</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MATCH DETAILS -->
+    <div id="match-details-screen" class="screen md-screen-bg">
+        <div class="header">
+            <div class="header-left"><i class="fas fa-arrow-left back-button" onclick="goToScreen('home-screen')"></i></div>
+            <div class="header-title">Match Details</div>
+            <div class="header-actions">
+                <div class="notification-icon-container" onclick="openNotifications()">
+                    <i class="fas fa-bell notification-icon"></i>
+                    <span id="notif-badge-details" class="notification-badge"></span>
+                </div>
+                <div class="wallet-button" onclick="goToScreen('wallet-screen')">
+                    <i class="fas fa-wallet" style="margin-right: 5px; font-size: 12px;"></i>₹<span id="header-balance-details">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="md-card">
+            <div class="md-image-container">
+                <img id="md-image" src="" alt="Match Image" onerror="this.style.display='none'">
+            </div>
+            <div class="md-content-area">
+                <div class="md-title-area">
+                    <img id="md-game-icon" src="" class="md-game-icon" alt="Game Icon" onerror="this.style.display='none'">
+                    <div class="md-title-text-wrapper">
+                        <h3 id="md-title">Loading Match...</h3>
+                        <p id="md-date-time">Loading date and time...</p>
+                    </div>
+                </div>
+                <button class="rules-btn" onclick="showRulesModal()"><i class="fas fa-scroll"></i> READ RULES</button>
+                <div class="md-stats-row">
+                    <div class="md-stat-item"><span>Prize Pool</span><strong id="md-prize-pool">₹0</strong></div>
+                    <div class="md-stat-item"><span>Per Kill</span><strong id="md-per-kill">₹0</strong></div>
+                    <div class="md-stat-item"><span>Entry Fee</span><strong id="md-entry-fee" class="entry-fee-color">₹0</strong></div>
+                </div>
+                <div class="md-stats-row">
+                    <div class="md-stat-item"><span style="color: var(--gold);">🥇 1st</span><strong id="md-1st-prize" class="prize-first">₹0</strong></div>
+                    <div class="md-stat-item"><span style="color: var(--silver);">🥈 2nd</span><strong id="md-2nd-prize" class="prize-second">₹0</strong></div>
+                    <div class="md-stat-item"><span style="color: var(--bronze);">🥉 3rd</span><strong id="md-3rd-prize" class="prize-third">₹0</strong></div>
+                </div>
+                <div class="md-stats-row">
+                    <div class="md-stat-item"><span>Type</span><strong id="md-type">N/A</strong></div>
+                    <div class="md-stat-item"><span>Mode</span><strong id="md-version">N/A</strong></div>
+                    <div class="md-stat-item"><span>Map</span><strong id="md-map">N/A</strong></div>
+                </div>
+            </div>
+            <div class="md-footer-cta">
+                <div class="md-progress-area">
+                    <div class="md-progress-bar"><div id="md-player-progress-bar" class="md-progress-fill"></div></div>
+                    <div class="md-progress-text">
+                        <span id="md-player-count">0/0</span>
+                        <span id="md-players-left-text">Loading...</span>
+                    </div>
+                </div>
+                <button id="md-join-button" class="md-join-button available">JOIN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JOIN FORM -->
+    <div id="match-join-form-screen" class="screen">
+        <div class="header">
+            <div class="header-left"><i class="fas fa-arrow-left back-button" onclick="goToScreen('match-details-screen')"></i></div>
+            <div class="header-title">Confirm Joining</div>
+            <div class="header-actions"><div class="wallet-button">₹<span id="header-balance-form">0</span></div></div>
+        </div>
+        <div class="content-area">
+            <div class="form-card">
+                <h3 id="join-form-match-title" style="margin-top: 0; color: var(--text); font-size: 18px;"></h3>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;" id="join-form-match-info"></p>
+                <div class="form-input-group">
+                    <label for="game-uid">Game UID / Player ID</label>
+                    <input type="number" id="game-uid" class="form-input" placeholder="Enter your Free Fire UID" required>
+                </div>
+                <div class="form-input-group">
+                    <label for="username">In-Game Name</label>
+                    <input type="text" id="username" class="form-input" placeholder="Enter your Free Fire name" required>
+                </div>
+                <div id="seat-selection-display" style="background: var(--bg-tertiary); padding: 14px; border-radius: var(--radius-sm); margin-bottom: 20px; text-align: center;">
+                    <div style="font-weight: 700; font-size: 14px; color: var(--text);">Seats Selected: <span id="selected-seats-text" style="color: var(--primary-dark);">N/A</span></div>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">(Selected in the previous step)</div>
+                </div>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5;">
+                    By clicking "Confirm Join", the entry fee will be deducted from your wallet and you accept the match rules.
+                </p>
+                <button class="primary-recharge-btn" id="confirm-join-btn" onclick="processJoin(window.currentMatchId)">Confirm & Join</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JOINED & DIRECT SCREENSHOT UPLOAD SCREEN -->
+    <div id="match-joined-screen" class="screen">
+        <div class="header">
+            <div class="header-left"><i class="fas fa-arrow-left back-button" onclick="goToScreen('home-screen')"></i></div>
+            <div class="header-title">Match Joined</div>
+            <div class="header-actions"><div class="wallet-button">₹<span id="header-balance-joined">0</span></div></div>
+        </div>
+        <div class="content-area">
+            <div class="confirmation-card" style="margin-top: 10px; padding: 24px;">
+                <i class="fas fa-check-circle" style="font-size: 40px; margin-bottom: 10px;"></i>
+                <h2 style="font-size: 20px;">Successfully Joined!</h2>
+                <p style="color: var(--text-secondary); font-size: 13px;">Match: <span id="joined-match-title" style="font-weight: 700; color: var(--text);"></span></p>
+                <p style="color: var(--text-secondary); font-size: 13px;">Seats Booked: <span id="joined-seats-list" style="font-weight: 700; color: var(--primary-dark);"></span></p>
+                
+                <div class="room-details-box" style="margin: 14px 0;">
+                    <div style="font-size: 15px; color: var(--primary-dark); margin-bottom: 6px;">🔑 Room Details</div>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin: 0 0 8px;" id="joined-room-text-display">Loading...</p>
+                    <div id="joined-room-id-container" style="display: none;"><span>Room ID:</span> <span id="display-room-id" style="font-weight: 700; color: var(--text);"></span></div>
+                    <div id="joined-room-pass-container" style="display: none;"><span>Password:</span> <span id="display-room-pass" style="font-weight: 700; color: var(--text);"></span></div>
+                </div>
+
+                <!-- DIRECT IMAGE FILE UPLOAD SECTION -->
+                <div style="background: var(--bg-tertiary); padding: 16px; border-radius: var(--radius-sm); text-align: left; margin-top: 16px; border: 1.5px dashed var(--primary);">
+                    <div style="font-weight: 700; font-size: 14px; color: var(--text); margin-bottom: 6px;">
+                        <i class="fas fa-camera" style="color: var(--primary);"></i> Upload Match Screenshot
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">
+                        Match khatam hone ke baad scoreboard ka screenshot select karke upload karein:
+                    </p>
+                    
+                    <input type="file" id="screenshot-file-input" accept="image/*" style="display: none;" onchange="handleScreenshotFileSelect(event)">
+                    <div class="upload-box-area" onclick="document.getElementById('screenshot-file-input').click()">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 28px; color: var(--primary); margin-bottom: 6px;"></i>
+                        <div style="font-size: 13px; font-weight: 600; color: var(--text);" id="upload-box-label">Tap to Select Screenshot from Gallery</div>
+                        <img id="screenshot-preview" class="upload-preview-img" src="" alt="Preview">
+                    </div>
+
+                    <button class="primary-recharge-btn" id="submit-ss-btn" style="padding: 12px; font-size: 14px;" onclick="submitMatchResult()">Upload & Submit Result</button>
+                </div>
+
+                <button class="auth-secondary-btn" onclick="goToScreen('home-screen')" style="margin-top: 16px;">Back to Home</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- WALLET -->
+    <div id="wallet-screen" class="screen">
+        <div class="header">
+            <div class="header-left"><i class="fas fa-bars menu-toggle" onclick="toggleSideMenu()"></i></div>
+            <div class="header-title">Wallet</div>
+            <div class="header-actions">
+                <div class="notification-icon-container" onclick="openNotifications()">
+                    <i class="fas fa-bell notification-icon"></i>
+                    <span id="notif-badge-wallet" class="notification-badge"></span>
+                </div>
+                <div class="wallet-button">₹<span id="header-balance-wallet">0</span></div>
+            </div>
+        </div>
+        <div class="content-area">
+            <div class="balance-container">
+                <div class="balance-row total-balance-row">
+                    <span class="balance-label">Total Balance</span>
+                    <span class="balance-value">₹<span id="wallet-total-balance">0.00</span></span>
+                </div>
+                <div class="balance-row">
+                    <span class="balance-label">Winnings</span>
+                    <span class="balance-value">₹<span id="wallet-winning-balance">0.00</span></span>
+                </div>
+                <div class="balance-row" style="border-bottom: none;">
+                    <span class="balance-label">Deposit (Play only)</span>
+                    <span class="balance-value">₹<span id="wallet-deposit-balance">0.00</span></span>
+                </div>
+                <div class="add-amount-button" onclick="goToRechargeStep(1)"><i class="fas fa-plus-circle"></i> Recharge Now</div>
+                <div class="add-amount-button secondary" onclick="showWithdrawalModal()"><i class="fas fa-arrow-up"></i> Withdraw Now</div>
+            </div>
+            <div class="transaction-title">Transaction History</div>
+            <div class="wallet-history-buttons">
+                <button class="wallet-history-btn deposit active-history-btn" onclick="loadTransactionHistory('deposit')">Deposit History</button>
+                <button class="wallet-history-btn withdrawal" onclick="loadTransactionHistory('withdrawal')">Withdrawal History</button>
+            </div>
+            <div id="wallet-history-list">
+                <div class="empty-state"><i class="fas fa-receipt"></i><p>Select a category above to view history.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LEADERBOARD -->
+    <div id="leaderboard-screen" class="screen">
+        <div class="header">
+            <div class="header-left"><i class="fas fa-bars menu-toggle" onclick="toggleSideMenu()"></i></div>
+            <div class="header-title">Leaderboard</div>
+            <div class="header-actions">
+                <div class="notification-icon-container" onclick="openNotifications()">
+                    <i class="fas fa-bell notification-icon"></i>
+                    <span id="notif-badge-leaderboard" class="notification-badge"></span>
+                </div>
+                <div class="wallet-button" onclick="goToScreen('wallet-screen')">
+                    <i class="fas fa-wallet" style="margin-right: 5px; font-size: 12px;"></i>₹<span id="header-balance-leaderboard">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="content-area">
+            <div class="leaderboard-tabs">
+                <div class="tab-item active" data-board="daily-leaderboard">Top Coin Holders</div>
+            </div>
+            <div id="lb-top-3-container" class="top-3-container">
+                <div class="empty-state" style="width: 100%;"><i class="fas fa-spinner fa-spin"></i><p>Loading Top Players...</p></div>
+            </div>
+            <div class="my-rank">
+                <div style="font-size: 13px; color: var(--primary-dark); font-weight: 700; margin-bottom: 6px;">Your Rank</div>
+                <div class="leaderboard-item">
+                    <div class="rank" id="my-rank-num">--</div>
+                    <div class="user-info">
+                        <div class="lb-avatar" id="lb-user-avatar">FF</div>
+                        <div class="lb-name" id="lb-user-name">Player (YOU)</div>
+                    </div>
+                    <div class="winnings" id="my-rank-bal">₹0</div>
+                </div>
+            </div>
+            <div id="leaderboard-list-rest"></div>
+        </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="profile-screen" class="screen">
+        <div class="header">
+            <div class="header-left"><i class="fas fa-bars menu-toggle" onclick="toggleSideMenu()"></i></div>
+            <div class="header-title">Profile</div>
+            <div class="header-actions">
+                <div class="notification-icon-container" onclick="openNotifications()">
+                    <i class="fas fa-bell notification-icon"></i>
+                    <span id="notif-badge-profile" class="notification-badge"></span>
+                </div>
+                <div class="wallet-button" onclick="goToScreen('wallet-screen')">
+                    <i class="fas fa-wallet" style="margin-right: 5px; font-size: 12px;"></i>₹<span id="header-balance-profile">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="content-area">
+            <div class="profile-card">
+                <div class="profile-avatar" id="profile-avatar-main">FF</div>
+                <div class="profile-name">
+                    <span id="profile-name-main">Player</span>
+                    <i class="fas fa-pencil-alt" onclick="openEditProfileModal()"></i>
+                </div>
+                <div class="profile-email">UID: <span id="profile-uid-display">Loading...</span></div>
+                <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 6px;" id="profile-contact-display">user@example.com</div>
+                <div style="font-size: 13px; color: var(--text-muted);" id="profile-phone-display">Phone: Not Set</div>
+            </div>
+            <div class="menu-item-list">
+                <div class="menu-item">
+                    <div class="menu-item-left"><i class="fas fa-bell menu-icon"></i> Notifications</div>
+                    <label class="toggle-switch"><input type="checkbox" checked onchange="toggleNotificationSetting(this.checked)"><span class="slider"></span></label>
+                </div>
+                <div class="menu-item" onclick="openEditProfileModal()">
+                    <div class="menu-item-left"><i class="fas fa-user-edit menu-icon" style="color: var(--primary);"></i> Edit Profile</div>
+                    <i class="fas fa-chevron-right" style="font-size: 13px; color: var(--text-muted);"></i>
+                </div>
+                <div class="menu-item" onclick="loadMatchHistory()">
+                    <div class="menu-item-left"><i class="fas fa-history menu-icon" style="color: var(--success);"></i> Match History</div>
+                    <i class="fas fa-chevron-right" style="font-size: 13px; color: var(--text-muted);"></i>
+                </div>
+                <div class="menu-item" onclick="goToScreen('refer-screen')">
+                    <div class="menu-item-left"><i class="fas fa-user-plus menu-icon" style="color: var(--info);"></i> Refer & Earn</div>
+                    <i class="fas fa-chevron-right" style="font-size: 13px; color: var(--text-muted);"></i>
+                </div>
+                <!-- TELEGRAM SUPPORT LINK -->
+                <div class="menu-item" onclick="openSupportTelegram()">
+                    <div class="menu-item-left"><i class="fab fa-telegram menu-icon" style="color: #0088cc;"></i> Contact Support</div>
+                    <i class="fas fa-chevron-right" style="font-size: 13px; color: var(--text-muted);"></i>
+                </div>
+                <div class="menu-item" onclick="showTermsModal()">
+                    <div class="menu-item-left"><i class="fas fa-file-alt menu-icon" style="color: var(--danger);"></i> Terms & Conditions</div>
+                    <i class="fas fa-chevron-right" style="font-size: 13px; color: var(--text-muted);"></i>
+                </div>
+                <div class="menu-item" style="color: var(--danger);" onclick="handleLogout()">
+                    <div class="menu-item-left"><i class="fas fa-sign-out-alt menu-icon" style="color: var(--danger);"></i> Logout</div>
+                    <i class="fas fa-chevron-right" style="font-size: 13px; color: var(--text-muted);"></i>
+                </div>
+            </div>
+            <div style="text-align: center; padding: 10px; color: var(--text-muted); font-size: 12px;">Free Fire Pro League v1.0</div>
+        </div>
+    </div>
+
+    <!-- EARNINGS -->
+    <div id="earnings-screen" class="screen">
+        <div class="header">
+            <div class="header-left"><i class="fas fa-bars menu-toggle" onclick="toggleSideMenu()"></i></div>
+            <div class="header-title">Earnings</div>
+            <div class="header-actions">
+                <div class="notification-icon-container" onclick="openNotifications()">
+                    <i class="fas fa-bell notification-icon"></i>
+                    <span id="notif-badge-earnings" class="notification-badge"></span>
+                </div>
+                <div class="wallet-button" onclick="goToScreen('wallet-screen')">
+                    <i class="fas fa-wallet" style="margin-right: 5px; font-size: 12px;"></i>₹<span id="header-balance-earnings">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="content-area">
+            <div class="earnings-summary-card">
+                <div class="earnings-icon"><i class="fas fa-coins"></i></div>
+                <div class="earnings-description">Track your tournament winnings and referral rewards here.</div>
+                <div class="earnings-data-row">
+                    <span class="data-label">Total Earned</span>
+                    <span class="data-value total" id="total-earnings-amount">₹0.00</span>
+                </div>
+                <div class="earnings-data-row" style="border-bottom: none;">
+                    <span class="data-label">From Referrals</span>
+                    <span class="data-value" id="referral-earnings-amount">₹0.00</span>
+                </div>
+                <div class="view-history-link" onclick="loadEarningsHistory()">View History</div>
+            </div>
+            <div class="section-title">Latest Transactions</div>
+            <div id="earnings-history-list"><div class="empty-state"><i class="fas fa-chart-line"></i><p>Loading earnings history...</p></div></div>
+        </div>
+    </div>
+
+    <!-- REFER -->
+    <div id="refer-screen" class="screen">
+        <div class="header">
+            <div class="header-left"><i class="fas fa-arrow-left back-button" onclick="goToScreen('profile-screen')"></i></div>
+            <div class="header-title">Refer & Earn</div>
+            <div class="header-actions">
+                <div class="wallet-button" onclick="goToScreen('wallet-screen')">
+                    <i class="fas fa-wallet" style="margin-right: 5px; font-size: 12px;"></i>₹<span id="header-balance-refer">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="content-area">
+            <div class="refer-card">
+                <div style="font-size: 44px; margin-bottom: 14px;">🎁</div>
+                <h3 style="margin: 0 0 8px; color: var(--text); font-size: 19px;">Invite Friends, Earn Rewards!</h3>
+                <p style="color: var(--text-secondary); font-size: 13px; line-height: 1.6;">Share your referral code. When friends sign up, you both get a bonus!</p>
+                <div class="refer-code-box" onclick="copyReferralCode()">
+                    <span>Your Referral Code (Tap to Copy)</span>
+                    <div class="code-line">
+                        <strong id="refer-code-display">LOADING...</strong>
+                        <button class="copy-btn"><i class="fas fa-copy"></i></button>
+                    </div>
+                </div>
+                <div class="refer-link-box" onclick="copyReferralLink()">
+                    <span>Your Referral Link (Tap to Copy)</span>
+                    <div class="link-line">
+                        <span id="refer-link-display">Loading App Link...</span>
+                        <button class="copy-btn"><i class="fas fa-copy"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="section-title">Share via</div>
+            <div class="social-share-grid">
+                <div class="social-share-btn whatsapp" onclick="shareToSocial('whatsapp')"><i class="fab fa-whatsapp"></i><span>WhatsApp</span></div>
+                <div class="social-share-btn telegram" onclick="shareToSocial('telegram')"><i class="fab fa-telegram-plane"></i><span>Telegram</span></div>
+                <div class="social-share-btn facebook" onclick="shareToSocial('facebook')"><i class="fab fa-facebook-f"></i><span>Facebook</span></div>
+                <div class="social-share-btn more" onclick="shareToSocial('more')"><i class="fas fa-share-alt"></i><span>More</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RECHARGE STEP 1 (MIN ₹20) -->
+    <div id="recharge-step-1" class="screen">
+        <div class="header">
+            <div class="header-left"><i class="fas fa-arrow-left back-button" onclick="goToScreen('wallet-screen')"></i></div>
+            <div class="header-title">Recharge</div>
+            <div class="header-actions"><div class="wallet-button">₹<span id="header-balance-recharge1">0</span></div></div>
+        </div>
+        <div class="recharge-content-area">
+            <div class="recharge-card">
+                <span style="font-size: 13px; color: var(--text-secondary);">Total Balance</span>
+                <div style="font-size: 22px; font-weight: 800; color: var(--primary-dark); margin-bottom: 20px;">₹<span id="recharge-current-balance">0.00</span></div>
+                <span style="font-size: 13px; color: var(--text-secondary);">Enter Any Amount</span>
+                <div class="amount-input-box-v2">
+                    <i class="fas fa-rupee-sign"></i>
+                    <input type="number" id="custom-recharge-amount" placeholder="Enter amount (e.g. 20)">
+                </div>
+                <div class="amount-limits">Minimum: ₹20 | Maximum: ₹3000</div>
+                <div class="amount-options">
+                    <div class="amount-option-btn selected" data-amount="20">₹20</div>
+                    <div class="amount-option-btn" data-amount="50">₹50</div>
+                    <div class="amount-option-btn" data-amount="100">₹100</div>
+                    <div class="amount-option-btn" data-amount="200">₹200</div>
+                    <div class="amount-option-btn" data-amount="500">₹500</div>
+                    <div class="amount-option-btn" data-amount="1000">₹1000</div>
+                </div>
+            </div>
+            <button id="recharge-step-1-next" class="primary-recharge-btn">Proceed to Pay</button>
+        </div>
+    </div>
+
+    <!-- RECHARGE STEP 2 -->
+    <div id="recharge-step-2" class="screen">
+        <div class="header">
+            <div class="header-left"><i class="fas fa-arrow-left back-button" onclick="goToRechargeStep(1)"></i></div>
+            <div class="header-title">Payment Method</div>
+            <div class="header-actions"><div class="wallet-button">₹<span id="header-balance-recharge2">0</span></div></div>
+        </div>
+        <div class="recharge-content-area">
+            <div class="recharge-amount-display">₹<span id="display-recharge-amount-2">20</span>.00</div>
+            <div class="section-title" style="margin-top: 0;">Select Payment Method</div>
+            <div class="payment-method selected" data-method="UPI / QR">
+                <div class="payment-method-details">
+                    <img src="https://i.ibb.co/nqS5f7dk/free-upi-logo-icon-svg-download-png-1747946.webp" alt="UPI" onerror="this.style.display='none'">
+                    UPI / Any QR App
+                </div>
+                <div class="radio-button"></div>
+            </div>
+            <div class="payment-method" data-method="Paytm">
+                <div class="payment-method-details">
+                    <img src="https://i.ibb.co/GfJNSchk/free-paytm-icon-svg-download-png-226448.webp" alt="Paytm" onerror="this.style.display='none'">
+                    Paytm UPI
+                </div>
+                <div class="radio-button"></div>
+            </div>
+            <div class="payment-method" data-method="Google Pay">
+                <div class="payment-method-details">
+                    <img src="https://i.ibb.co/YBDFqvNW/google-pay-icon.png" alt="GPay" onerror="this.style.display='none'">
+                    Google Pay
+                </div>
+                <div class="radio-button"></div>
+            </div>
+            <button id="recharge-step-2-next" class="primary-recharge-btn" style="margin-top: 20px;">Generate Payment QR</button>
+        </div>
+    </div>
+
+    <!-- RECHARGE STEP 3 (AUTO DYNAMIC QR + 5 MIN TIMER) -->
+    <div id="recharge-step-3" class="screen">
+        <div class="header">
+            <div class="header-left"><i class="fas fa-arrow-left back-button" onclick="cancelRechargePayment()"></i></div>
+            <div class="header-title">Scan & Pay</div>
+            <div class="header-actions"><div class="wallet-button">₹<span id="header-balance-recharge3">0</span></div></div>
+        </div>
+        <div class="recharge-content-area">
+            <div class="timer-banner">
+                <i class="fas fa-hourglass-half fa-spin"></i>
+                <span>QR Expires in: <span id="payment-timer-display">05:00</span></span>
+            </div>
+
+            <div class="recharge-amount-display">Pay ₹<span id="display-recharge-amount-3">20</span>.00</div>
+            <div class="recharge-card" style="padding: 20px;">
+                <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px;">
+                    Scan with PhonePe, Paytm, GPay or FamPay
+                </div>
+                <div class="qr-code-box">
+                    <img id="qr-code-image" src="" alt="Generating Dynamic QR...">
+                </div>
+
+                <a id="direct-upi-link" href="#" class="upi-pay-direct-btn">
+                    <i class="fas fa-external-link-alt"></i> Open UPI App to Pay ₹<span id="btn-pay-amount">20</span>
+                </a>
+
+                <div class="payment-info-v2">
+                    <div><span>Payment Mode:</span> <strong id="payment-mode-display">UPI</strong></div>
+                    <div><span>UPI ID:</span> <strong id="upi-id-display">prins29@fam</strong></div>
+                </div>
+                <div class="action-button-row">
+                    <button onclick="copyToClipboard(window.currentRechargeAmount)"><i class="fas fa-copy"></i> Copy Amount</button>
+                    <button onclick="copyToClipboard(document.getElementById('upi-id-display').textContent)"><i class="fas fa-copy"></i> Copy UPI ID</button>
+                </div>
+                <div class="utr-section-v2">
+                    <div class="utr-step">
+                        <div class="utr-step-title">Step 1: Complete Payment</div>
+                        <div class="utr-step-desc">Scan QR or click "Open UPI App" above to pay exact amount.</div>
+                    </div>
+                    <div class="utr-step">
+                        <div class="utr-step-title">Step 2: Enter 12-Digit UTR</div>
+                        <div class="utr-step-desc">Paste the UTR / Ref No. from your payment receipt below.</div>
+                    </div>
+                    <input type="number" id="utr-input" class="utr-input" placeholder="Enter 12-digit UTR / Ref. No.">
+                </div>
+            </div>
+            <div class="submit-buttons">
+                <button class="primary-recharge-btn cancel-btn" onclick="cancelRechargePayment()">Cancel</button>
+                <button class="primary-recharge-btn submit-btn" id="submit-recharge-btn" onclick="submitRecharge()">Submit UTR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav" id="bottom-nav-bar">
+        <a id="nav-home" class="nav-item active" data-screen="home-screen"><i class="fas fa-home nav-icon"></i> Home</a>
+        <a id="nav-wallet" class="nav-item" data-screen="wallet-screen"><i class="fas fa-wallet nav-icon"></i> Wallet</a>
+        <a id="nav-leaderboard" class="nav-item trophy-item" data-screen="leaderboard-screen"><div class="trophy-icon"><i class="fas fa-trophy"></i></div></a>
+        <a id="nav-earnings" class="nav-item" data-screen="earnings-screen"><i class="fas fa-dollar-sign nav-icon"></i> Earnings</a>
+        <a id="nav-profile" class="nav-item" data-screen="profile-screen"><i class="fas fa-user nav-icon"></i> Profile</a>
+    </div>
+
+    <!-- SEAT MODAL -->
+    <div id="seat-selection-modal" class="modal-overlay">
+        <div class="modal-content seat-modal-content">
+            <div class="modal-header">
+                Seat Selection (Team: <span id="modal-team-size">1</span>)
+                <i class="fas fa-times modal-close" onclick="hideSeatSelectionModal()"></i>
+            </div>
+            <div class="seat-legend">
+                <div class="legend-item"><span class="legend-color available"></span> Available</div>
+                <div class="legend-item"><span class="legend-color occupied"></span> Occupied</div>
+                <div class="legend-item"><span class="legend-color selected"></span> Selected</div>
+            </div>
+            <div id="seat-grid" class="seat-grid"></div>
+            <div id="modal-selected-seats-info" style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; text-align: center;">
+                Select a starting seat to book a block of <span id="modal-team-size-2">1</span> seats.
+            </div>
+            <button class="primary-recharge-btn" onclick="goToFormFromSeats()" id="confirm-seats-btn" disabled>Confirm Seats</button>
+        </div>
+    </div>
+
+    <!-- WITHDRAWAL MODAL (ONLY UPI) -->
+    <div id="withdrawal-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                Withdraw Winnings (UPI Only)
+                <i class="fas fa-times modal-close" onclick="hideWithdrawalModal()"></i>
+            </div>
+            <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 18px; text-align: center;">
+                Available Winnings: <strong style="color: var(--success); font-size: 16px;">₹<span id="modal-withdraw-bal">0.00</span></strong>
+            </p>
+            <div class="form-input-group">
+                <label for="withdraw-details">Enter Valid UPI ID Only</label>
+                <input type="text" id="withdraw-details" class="form-input" placeholder="e.g. username@upi or 9876543210@ybl">
+            </div>
+            <div class="form-input-group">
+                <label for="withdraw-amount">Amount (Min: ₹50)</label>
+                <input type="number" id="withdraw-amount" class="form-input" placeholder="Enter amount to withdraw">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="primary-recharge-btn" style="background: var(--bg-tertiary); color: var(--text); box-shadow: none;" onclick="hideWithdrawalModal()">Cancel</button>
+                <button class="primary-recharge-btn" id="withdraw-submit-btn" onclick="submitWithdrawal()">Withdraw via UPI</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RULES MODAL -->
+    <div id="rules-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">Match Rules<i class="fas fa-times modal-close" onclick="hideRulesModal()"></i></div>
+            <div id="rules-text-content" style="white-space: pre-line; line-height: 1.6; color: var(--text-secondary); font-size: 14px;">No rules found.</div>
+            <button class="primary-recharge-btn" onclick="hideRulesModal()" style="margin-top: 16px;">OK, Got It</button>
+        </div>
+    </div>
+
+    <!-- TERMS MODAL -->
+    <div id="terms-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">Terms & Conditions<i class="fas fa-times modal-close" onclick="closeTermsModal()"></i></div>
+            <div style="max-height: 400px; overflow-y: auto; padding: 10px 0; color: var(--text-secondary); line-height: 1.7; font-size: 14px;">
+                <h4 style="color: var(--text); margin-top: 0;">1. Introduction</h4>
+                <p>Welcome to Free Fire Pro League. By using our platform, you agree to these terms.</p>
+                <h4 style="color: var(--text); margin-top: 15px;">2. Eligibility</h4>
+                <p>You must be 18+ years old to participate in paid tournaments.</p>
+                <h4 style="color: var(--text); margin-top: 15px;">3. Fair Play</h4>
+                <p>Any form of cheating, hacking, or exploiting will result in permanent ban and forfeiture of funds.</p>
+                <h4 style="color: var(--text); margin-top: 15px;">4. Payments & Withdrawals</h4>
+                <p>All transactions are final. Withdrawals are processed within 24-48 hours to the provided UPI ID.</p>
+                <h4 style="color: var(--text); margin-top: 15px;">5. Account Security</h4>
+                <p>You are responsible for maintaining the security of your account credentials.</p>
+            </div>
+            <button class="primary-recharge-btn" onclick="closeTermsModal()" style="margin-top: 16px;">I Agree</button>
+        </div>
+    </div>
+
+    <!-- FIREBASE + APP LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, doc, getDoc, setDoc, updateDoc, arrayUnion, increment, onSnapshot, query, where, getDocs, limit, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // ===== FIREBASE CONFIG =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyBdrFxXA8_DBGLwKB5Vb4WIf5rR-qFBgzo",
+            authDomain: "bgmi-28263.firebaseapp.com",
+            databaseURL: "https://bgmi-28263-default-rtdb.firebaseio.com",
+            projectId: "bgmi-28263",
+            storageBucket: "bgmi-28263.firebasestorage.app",
+            messagingSenderId: "176301148502",
+            appId: "1:176301148502:web:4d94386128e3099e8d6ef7",
+            measurementId: "G-ZH7PJRSN9P"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const CURRENT_APP_VERSION = "1.0";
+        const DEFAULT_UPI_ID = "prins29@fam";
+        window.appUpdateLink = "#";
+        window.currentUserData = null;
+        window.currentRechargeAmount = 20;
+        window.currentMatchId = null;
+        window.selectedSeatBlock = [];
+        window.selectedCompressedScreenshot = "";
+        window.appSettings = { sliders: [], payments: {}, referral: {} };
+        window.matchData = {};
+        window.myNotifications = [];
+        let historyUnsubscribe = null;
+        let notifUnsubscribe = null;
+        let currentMatchUnsubscribe = null;
+        let leaderboardUnsubscribe = null;
+        let leaderboardLoaded = false;
+        let userSnapshotUnsub = null;
+        let paymentTimerInterval = null;
+
+        // ===== SAFE HELPERS =====
+        function setText(id, val) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = val;
+        }
+        function getInitials(name) {
+            if (!name || typeof name !== 'string') return 'U';
+            const names = name.trim().split(' ');
+            let initials = (names[0] || 'U').substring(0, 1).toUpperCase();
+            if (names.length > 1) initials += names[names.length - 1].substring(0, 1).toUpperCase();
+            return initials || 'U';
+        }
+
+        // ===== SUPPORT TELEGRAM REDIRECT =====
+        window.openSupportTelegram = function() {
+            window.open("https://t.me/Freefire_support9", "_blank");
+        };
+
+        // ===== APP UPDATE LISTENER =====
+        try {
+            onSnapshot(doc(db, "settings", "app_config"), (s) => {
+                if (s.exists()) {
+                    const config = s.data();
+                    const latest = config.latestVersion || "1.0";
+                    window.appUpdateLink = config.updateLink || "#";
+                    if (parseFloat(latest) > parseFloat(CURRENT_APP_VERSION)) {
+                        setText('update-msg-text', config.updateMessage || "Please update to continue.");
+                        const m = document.getElementById('update-modal');
+                        if (m) m.classList.add('active');
+                    } else {
+                        const m = document.getElementById('update-modal');
+                        if (m) m.classList.remove('active');
+                    }
+                }
+            });
+        } catch (e) {}
+
+        window.openUpdateLink = function () {
+            if (window.appUpdateLink && window.appUpdateLink !== "#") window.open(window.appUpdateLink, '_blank');
+            else alert("Update link not configured.");
+        };
+
+        // ===== SETTINGS LISTENERS =====
+        try {
+            onSnapshot(doc(db, "settings", "sliders"), (docSnap) => {
+                if (docSnap.exists()) {
+                    window.appSettings.sliders = docSnap.data().list || [];
+                    renderUserSlider();
+                }
+            });
+
+            onSnapshot(doc(db, "settings", "payment"), (docSnap) => {
+                if (docSnap.exists()) window.appSettings.payments = docSnap.data();
+            });
+
+            onSnapshot(doc(db, "settings", "referral"), (docSnap) => {
+                if (docSnap.exists()) {
+                    window.appSettings.referral = docSnap.data();
+                    if (window.currentUserData) {
+                        const link = window.appSettings.referral.appLink || "https://myapp.com";
+                        const refId = window.currentUserData.uid || window.currentUserData.id;
+                        setText('refer-link-display', `${link}?ref=${refId}`);
+                    }
+                }
+            });
+        } catch (e) {}
+
+        // ===== LEADERBOARD =====
+        function initLeaderboardListener() {
+            if (leaderboardLoaded || leaderboardUnsubscribe) return;
+            leaderboardLoaded = true;
+            try {
+                const q = query(collection(db, "users"), orderBy("balance", "desc"), limit(50));
+                leaderboardUnsubscribe = onSnapshot(q, (snapshot) => {
+                    const users = snapshot.docs.map(d => {
+                        let u = d.data();
+                        if (u.deposit === undefined) u.deposit = 0;
+                        if (u.winnings === undefined) u.winnings = 0;
+                        if (u.balance === undefined) u.balance = (u.deposit || 0) + (u.winnings || 0);
+                        return u;
+                    });
+                    renderRealtimeLeaderboard(users);
+                });
+            } catch (e) {}
+        }
+
+        function renderRealtimeLeaderboard(users) {
+            const top3Container = document.getElementById('lb-top-3-container');
+            const listContainer = document.getElementById('leaderboard-list-rest');
+            if (!top3Container || !listContainer) return;
+            top3Container.innerHTML = '';
+            listContainer.innerHTML = '';
+            if (users.length === 0) {
+                top3Container.innerHTML = '<div class="empty-state" style="width:100%;"><i class="fas fa-users"></i><p>No players found.</p></div>';
+                return;
+            }
+            const top1 = users[0], top2 = users[1], top3 = users[2];
+            if (top2) top3Container.innerHTML += `<div class="top-user rank-2-card"><i class="fas fa-medal top-rank-badge" style="font-size: 24px;"></i><div class="top-avatar" style="border-color: var(--silver);">${getInitials(top2.name)}</div><div class="top-name">${top2.name}</div><div class="top-winnings">₹${top2.balance}</div></div>`;
+            if (top1) top3Container.innerHTML += `<div class="top-user rank-1-card"><i class="fas fa-trophy top-rank-badge" style="font-size: 32px;"></i><div class="top-avatar">${getInitials(top1.name)}</div><div class="top-name">${top1.name}</div><div class="top-winnings">₹${top1.balance}</div></div>`;
+            if (top3) top3Container.innerHTML += `<div class="top-user rank-3-card"><i class="fas fa-medal top-rank-badge" style="font-size: 20px;"></i><div class="top-avatar" style="border-color: var(--bronze);">${getInitials(top3.name)}</div><div class="top-name">${top3.name}</div><div class="top-winnings">₹${top3.balance}</div></div>`;
+            for (let i = 3; i < users.length; i++) {
+                const u = users[i];
+                listContainer.innerHTML += `<div class="leaderboard-item"><div class="rank">${i + 1}</div><div class="user-info"><div class="lb-avatar">${getInitials(u.name)}</div><div class="lb-name">${u.name}</div></div><div class="winnings">₹${u.balance}</div></div>`;
+            }
+            if (window.currentUserData) {
+                const myIndex = users.findIndex(u => u.uid === window.currentUserData.uid);
+                if (myIndex !== -1) {
+                    setText('my-rank-num', myIndex + 1);
+                    setText('my-rank-bal', '₹' + users[myIndex].balance);
+                }
+            }
+        }
+
+        // ===== MATCHES LISTENER (WITH SCREENSHOT STYLE BIG BANNER CARDS) =====
+        try {
+            onSnapshot(collection(db, "matches"), (snapshot) => {
+                const grid = document.getElementById('dynamic-game-grid');
+                if (!grid) return;
+                grid.innerHTML = '';
+                window.matchData = {};
+                if (snapshot.empty) {
+                    grid.innerHTML = '<div class="empty-state" style="grid-column: span 2;"><i class="fas fa-gamepad"></i><p>No active matches found.</p></div>';
+                    return;
+                }
+                let hasMatches = false;
+                snapshot.forEach(doc => {
+                    const m = doc.data();
+                    const mId = doc.id;
+                    if (!m.type || !m.title) return;
+                    window.matchData[mId] = { ...m, id: mId };
+                    hasMatches = true;
+                    const card = document.createElement('div');
+                    card.className = 'game-card';
+                    card.onclick = () => showMatchDetails(mId);
+
+                    const matchType = m.type || 'Solo';
+                    let pillColor = matchType.includes('Solo') ? '#ef4444' : (matchType.includes('Duo') ? '#10b981' : '#3b82f6');
+                    const joined = m.bookedSeats ? m.bookedSeats.length : 0;
+                    const total = m.totalSeats || 48;
+                    const pct = Math.min(100, Math.round((joined / total) * 100));
+
+                    const tagBadge = m.tag ? `<div class="match-tag-badge">${m.tag}</div>` : '';
+                    const modePill = `<div class="match-mode-pill" style="background:${pillColor}; color:#fff;">${matchType}</div>`;
+                    const bannerImg = m.gameImage || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=400&q=80';
+
+                    card.innerHTML = `
+                        <div class="card-img-banner" style="background-image: url('${bannerImg}')">
+                            ${tagBadge}
+                            ${modePill}
+                        </div>
+                        <div class="card-details-padding">
+                            <div class="game-title">${m.title}</div>
+                            <div>
+                                <div class="card-mini-progress" style="width: 100%; height: 5px; background: var(--bg-tertiary); border-radius: 3px; overflow: hidden; margin: 6px 0 4px;"><div style="height: 100%; background: var(--primary); width: ${pct}%;"></div></div>
+                                <div class="card-footer-row">
+                                    <div class="slots-indicator">${joined}/${total} Left</div>
+                                    <div class="game-prize">₹${m.pricePool}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+                if (!hasMatches) grid.innerHTML = '<div class="empty-state" style="grid-column: span 2;"><i class="fas fa-gamepad"></i><p>No matches available right now.</p></div>';
+            });
+        } catch (e) {}
+
+        // ===== AUTO SLIDER RENDER & AUTO-SCROLL LOGIC =====
+        let currentSlideIndex = 0;
+        let autoSliderTimer = null;
+
+        function renderUserSlider() {
+            const wrapper = document.getElementById('home-slider-wrapper');
+            if (!wrapper) return;
+            wrapper.innerHTML = '';
+            const sliders = (window.appSettings.sliders || []).filter(s => s && s.image);
+            
+            if (sliders.length === 0) {
+                wrapper.innerHTML = `
+                    <div class="slide-item" style="background-image: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80')"><span>Welcome to Free Fire Pro League</span></div>
+                    <div class="slide-item" style="background-image: url('https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=600&q=80')"><span>Play Tournaments & Win Daily Cash</span></div>
+                    <div class="slide-item" style="background-image: url('https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=600&q=80')"><span>Invite Friends & Earn Rewards</span></div>
+                `;
+            } else {
+                const displaySlides = [...sliders];
+                while (displaySlides.length < 3) displaySlides.push(displaySlides[0]);
+                displaySlides.slice(0, 3).forEach(slide => {
+                    const div = document.createElement('div');
+                    div.className = 'slide-item';
+                    div.style.backgroundImage = `url('${slide.image}')`;
+                    div.innerHTML = `<span>${slide.text || ''}</span>`;
+                    if (slide.link) div.onclick = () => window.open(slide.link, '_blank');
+                    wrapper.appendChild(div);
+                });
+            }
+            initAutoSliderEngine();
+        }
+
+        function initAutoSliderEngine() {
+            if (autoSliderTimer) clearInterval(autoSliderTimer);
+            const wrapper = document.getElementById('home-slider-wrapper');
+            if (!wrapper) return;
+            const slides = wrapper.querySelectorAll('.slide-item');
+            if (slides.length <= 1) return;
+
+            autoSliderTimer = setInterval(() => {
+                currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+                wrapper.style.transform = `translateX(-${currentSlideIndex * 33.33}%)`;
+            }, 3500);
+        }
+
+        // ===== AUTH =====
+        onAuthStateChanged(auth, (user) => {
+            try {
+                const loginBtn = document.getElementById('login-btn');
+                if (loginBtn) { loginBtn.disabled = false; loginBtn.textContent = "Login"; }
+                const signupBtn = document.getElementById('signup-btn');
+                if (signupBtn) { signupBtn.disabled = false; signupBtn.textContent = "Sign Up"; }
+
+                if (user) {
+                    const activeScreen = document.querySelector('.screen.active');
+                    const authScreens = ['welcome-screen', 'login-screen', 'signup-screen'];
+                    if (activeScreen && authScreens.includes(activeScreen.id)) {
+                        goToScreen('home-screen');
+                    }
+
+                    const userRef = doc(db, "users", user.uid);
+                    getDoc(userRef).then((docSnap) => {
+                        if (docSnap.exists()) {
+                            window.currentUserData = docSnap.data();
+                            loadUserData();
+                            updateEarningsSummary();
+                            initLeaderboardListener();
+                            initNotificationListener(user.uid);
+                        } else {
+                            setDoc(userRef, {
+                                name: user.displayName || "Player",
+                                email: user.email || "",
+                                phone: "Not Set",
+                                uid: Math.floor(100000 + Math.random() * 900000),
+                                authId: user.uid,
+                                deposit: 0, winnings: 0, balance: 0,
+                                joinedMatches: [], notifications: true
+                            }, { merge: true });
+                        }
+                    });
+
+                    if (userSnapshotUnsub) userSnapshotUnsub();
+                    userSnapshotUnsub = onSnapshot(userRef, (docSnap) => {
+                        if (docSnap.exists()) {
+                            window.currentUserData = docSnap.data();
+                            loadUserData();
+                        }
+                    });
+
+                } else {
+                    window.currentUserData = null;
+                    if (userSnapshotUnsub) { userSnapshotUnsub(); userSnapshotUnsub = null; }
+                    if (leaderboardUnsubscribe) { leaderboardUnsubscribe(); leaderboardUnsubscribe = null; leaderboardLoaded = false; }
+                    if (notifUnsubscribe) { notifUnsubscribe(); notifUnsubscribe = null; }
+                    if (historyUnsubscribe) { historyUnsubscribe(); historyUnsubscribe = null; }
+                    if (currentMatchUnsubscribe) { currentMatchUnsubscribe(); currentMatchUnsubscribe = null; }
+                    goToScreen('welcome-screen');
+                }
+            } catch (e) {}
+        });
+
+        window.handleLogin = async () => {
+            const contact = document.getElementById('login-contact').value.trim();
+            const password = document.getElementById('login-password').value;
+            if (!contact || !password) return alert("Please enter email and password.");
+
+            const btn = document.getElementById('login-btn');
+            const originalText = btn.textContent;
+            btn.disabled = true; btn.textContent = "Logging in...";
+
+            try {
+                await signInWithEmailAndPassword(auth, contact, password);
+            } catch (error) {
+                alert(error.message || "Login failed.");
+                btn.disabled = false; btn.textContent = originalText;
+            }
+        };
+
+        window.handleSignup = async () => {
+            const name = document.getElementById('signup-name').value.trim();
+            const contact = document.getElementById('signup-contact').value.trim();
+            const password = document.getElementById('signup-password').value;
+            const referral = document.getElementById('signup-referral').value.trim();
+
+            if (!name || !contact || !password) return alert("Please fill all required fields.");
+            if (password.length < 6) return alert("Password must be at least 6 characters.");
+
+            const btn = document.getElementById('signup-btn');
+            const originalText = btn.textContent;
+            btn.disabled = true; btn.textContent = "Creating...";
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, contact, password);
+                const user = userCredential.user;
+                goToScreen('home-screen');
+
+                const randomNumericID = Math.floor(100000 + Math.random() * 900000);
+                let signupBonus = 5;
+                if (window.appSettings.referral && window.appSettings.referral.signupBonus) {
+                    signupBonus = parseFloat(window.appSettings.referral.signupBonus) || 5;
+                }
+
+                const userDocData = {
+                    name, email: contact, phone: "Not Set",
+                    uid: randomNumericID, authId: user.uid,
+                    deposit: 0, winnings: signupBonus, balance: signupBonus,
+                    referral, joinedMatches: [], notifications: true
+                };
+
+                await setDoc(doc(db, "users", user.uid), userDocData);
+                if (referral) {
+                    let q = query(collection(db, "users"), where("uid", "==", parseInt(referral)));
+                    let qs = await getDocs(q);
+                    if (qs.empty) {
+                        q = query(collection(db, "users"), where("uid", "==", referral));
+                        qs = await getDocs(q);
+                    }
+                    if (!qs.empty) {
+                        const refBonus = (window.appSettings.referral && window.appSettings.referral.referralBonus)
+                            ? parseFloat(window.appSettings.referral.referralBonus) : 20;
+                        await updateDoc(doc(db, "users", qs.docs[0].id), {
+                            winnings: increment(refBonus),
+                            balance: increment(refBonus)
+                        });
+                    }
+                }
+                alert("Account created successfully! Welcome bonus added.");
+            } catch (error) {
+                alert(error.message || "Signup failed.");
+                btn.disabled = false; btn.textContent = originalText;
+            }
+        };
+
+        window.handleLogout = () => {
+            if (confirm("Are you sure you want to logout?")) {
+                signOut(auth);
+            }
+        };
+
+        // ===== USER DATA & BALANCE =====
+        function loadUserData() {
+            if (!window.currentUserData) return;
+            const user = window.currentUserData;
+            const displayUid = user.uid || user.id || "Error";
+
+            setText('menu-username', user.name || 'User');
+            setText('menu-avatar', getInitials(user.name || 'U'));
+            setText('user-uid-display', displayUid);
+            setText('profile-name-main', user.name || 'User');
+            setText('profile-avatar-main', getInitials(user.name || 'U'));
+            setText('profile-uid-display', displayUid);
+            setText('profile-contact-display', user.email || "No Email");
+            setText('profile-phone-display', user.phone || "Phone: Not Set");
+            setText('lb-user-name', `${user.name || 'User'} (YOU)`);
+            setText('lb-user-avatar', getInitials(user.name || 'U'));
+            setText('refer-code-display', displayUid);
+
+            const link = (window.appSettings.referral && window.appSettings.referral.appLink) ? window.appSettings.referral.appLink : "https://myapp.com";
+            setText('refer-link-display', `${link}?ref=${displayUid}`);
+            updateBalanceDisplay();
+        }
+
+        function updateBalanceDisplay() {
+            if (!window.currentUserData) return;
+            const deposit = parseFloat(window.currentUserData.deposit || 0);
+            const winnings = parseFloat(window.currentUserData.winnings || 0);
+            const total = deposit + winnings;
+
+            document.querySelectorAll('[id^="header-balance"], #recharge-current-balance').forEach(el => {
+                if (el) el.textContent = total.toFixed(2).replace(/\.00$/, '');
+            });
+
+            setText('wallet-total-balance', total.toFixed(2));
+            setText('wallet-winning-balance', winnings.toFixed(2));
+            setText('wallet-deposit-balance', deposit.toFixed(2));
+            setText('modal-withdraw-bal', winnings.toFixed(2));
+        }
+
+        // ===== PROFILE & MODALS =====
+        window.openEditProfileModal = function () {
+            const user = window.currentUserData;
+            if (!user) return;
+            document.getElementById('edit-profile-name').value = user.name || '';
+            document.getElementById('edit-profile-phone').value = user.phone || '';
+            document.getElementById('edit-profile-email').value = user.email || '';
+            document.getElementById('edit-profile-modal').classList.add('active');
+        };
+        window.closeEditProfileModal = () => document.getElementById('edit-profile-modal').classList.remove('active');
+
+        window.saveProfileChanges = async function () {
+            const name = document.getElementById('edit-profile-name').value.trim();
+            const phone = document.getElementById('edit-profile-phone').value.trim();
+            const email = document.getElementById('edit-profile-email').value.trim();
+            if (!name) return alert("Please enter your name.");
+            try {
+                const userId = auth.currentUser.uid;
+                const userRef = doc(db, "users", userId);
+                await updateDoc(userRef, { name, phone: phone || "Not Set", email: email || window.currentUserData.email });
+                if (auth.currentUser) await updateProfile(auth.currentUser, { displayName: name });
+                alert("Profile updated successfully!");
+                closeEditProfileModal();
+            } catch (e) { alert("Error updating profile: " + e.message); }
+        };
+
+        window.loadMatchHistory = function () {
+            if (!window.currentUserData) return;
+            const joinedMatches = window.currentUserData.joinedMatches || [];
+            if (joinedMatches.length === 0) return alert("You haven't joined any matches yet.");
+            alert(`You have joined ${joinedMatches.length} matches.`);
+        };
+
+        window.showTermsModal = () => document.getElementById('terms-modal').classList.add('active');
+        window.closeTermsModal = () => document.getElementById('terms-modal').classList.remove('active');
+
+        window.toggleNotificationSetting = function (enabled) {
+            if (!window.currentUserData) return;
+            updateDoc(doc(db, "users", auth.currentUser.uid), { notifications: enabled });
+            alert(enabled ? "Notifications enabled." : "Notifications disabled.");
+        };
+
+        function updateEarningsSummary() {
+            if (!window.currentUserData) return;
+            const winnings = parseFloat(window.currentUserData.winnings || 0);
+            const referralBonus = parseFloat(window.currentUserData.referralBonus || 0);
+            setText('total-earnings-amount', `₹${winnings.toFixed(2)}`);
+            setText('referral-earnings-amount', `₹${referralBonus.toFixed(2)}`);
+        }
+
+        window.loadEarningsHistory = function () {
+            const container = document.getElementById('earnings-history-list');
+            if (!container) return;
+            container.innerHTML = `<div class="empty-state"><i class="fas fa-trophy"></i><p>All match winnings are credited directly to your Winnings Wallet.</p></div>`;
+        };
+
+        window.copyToClipboard = (text) => {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(String(text)).then(() => alert('Copied: ' + text), () => alert('Failed to copy.'));
+            } else {
+                const textArea = document.createElement("textarea");
+                textArea.value = String(text);
+                textArea.style.position = "fixed"; textArea.style.left = "-9999px";
+                document.body.appendChild(textArea);
+                textArea.focus(); textArea.select();
+                try { document.execCommand('copy'); alert('Copied: ' + text); } catch (err) {}
+                document.body.removeChild(textArea);
+            }
+        };
+        window.copyReferralCode = () => copyToClipboard(document.getElementById('refer-code-display').innerText);
+        window.copyReferralLink = () => copyToClipboard(document.getElementById('refer-link-display').innerText);
+
+        window.shareToSocial = (platform) => {
+            const refCode = (window.currentUserData && window.currentUserData.uid) || "JOIN";
+            const appLinkRaw = (window.appSettings.referral && window.appSettings.referral.appLink) ? window.appSettings.referral.appLink : "https://myapp.com";
+            const finalLink = `${appLinkRaw}?ref=${refCode}`;
+            const message = `Hey! Join Free Fire Pro League and earn real money by playing! Use my code *${refCode}* to get a bonus! Download: ${finalLink}`;
+            const encodedMsg = encodeURIComponent(message);
+            const encodedLink = encodeURIComponent(finalLink);
+            if (platform === 'whatsapp') window.open(`https://wa.me/?text=${encodedMsg}`, '_blank');
+            else if (platform === 'telegram') window.open(`https://t.me/share/url?url=${encodedLink}&text=${encodedMsg}`, '_blank');
+            else if (platform === 'facebook') window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodedLink}`, '_blank');
+            else if (platform === 'more') {
+                if (navigator.share) navigator.share({ title: 'Free Fire Pro League Invite', text: message, url: finalLink });
+                else copyToClipboard(finalLink);
+            }
+        };
+
+        // ===== TRANSACTIONS =====
+        window.loadTransactionHistory = function (type) {
+            if (!window.currentUserData) return;
+            document.querySelectorAll('.wallet-history-btn').forEach(b => b.classList.remove('active-history-btn'));
+            const activeBtn = document.querySelector(`.wallet-history-btn.${type}`);
+            if (activeBtn) activeBtn.classList.add('active-history-btn');
+
+            const container = document.getElementById('wallet-history-list');
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div>';
+            if (historyUnsubscribe) historyUnsubscribe();
+
+            const collectionName = type === 'deposit' ? 'deposit_requests' : 'withdrawal_requests';
+            const uidValue = (window.currentUserData.uid || auth.currentUser.uid);
+            const q = query(collection(db, collectionName), where("uid", "==", uidValue));
+
+            historyUnsubscribe = onSnapshot(q, (snapshot) => {
+                const transactions = snapshot.docs.map(doc => doc.data());
+                transactions.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                if (transactions.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-receipt"></i><p>No transactions found.</p></div>';
+                    return;
+                }
+                container.innerHTML = '';
+                transactions.forEach(txn => {
+                    let color = '#f59e0b', icon = 'fa-clock', statusText = 'Pending', amountColor = '#f59e0b';
+                    let sign = type === 'deposit' ? '+' : '-';
+                    if (txn.status === 'success') {
+                        color = '#10b981'; icon = 'fa-check-circle'; statusText = 'Successful';
+                        amountColor = type === 'withdrawal' ? '#ef4444' : '#10b981';
+                    } else if (txn.status === 'rejected') {
+                        color = '#ef4444'; icon = 'fa-times-circle'; statusText = 'Rejected'; amountColor = '#ef4444';
+                    }
+                    const dateStr = txn.timestamp ? new Date(txn.timestamp).toLocaleString() : 'N/A';
+                    container.innerHTML += `
+                    <div class="leaderboard-item" style="flex-direction: column; align-items: stretch; gap: 4px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="font-weight: 700; font-size: 14px; color: var(--text);">${type === 'deposit' ? 'Add Money' : 'Withdrawal'}</div>
+                            <div style="font-weight: 700; font-size: 16px; color: ${amountColor};">${sign}₹${txn.amount}</div>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-muted);">${dateStr}</div>
+                        <div style="color: ${color}; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 5px;">
+                            <i class="fas ${icon}"></i> ${statusText}
+                        </div>
+                    </div>`;
+                });
+            });
+        };
+
+        // ===== NOTIFICATIONS =====
+        function initNotificationListener(userUid) {
+            if (notifUnsubscribe) return;
+            notifUnsubscribe = onSnapshot(collection(db, "notifications"), (snap) => {
+                if (snap.empty) { updateNotificationBadge(0); window.myNotifications = []; return; }
+                const allNotifs = snap.docs.map(d => d.data());
+                const myNotifs = allNotifs.filter(n => (!n.targetUid || n.targetUid === 'ALL' || n.targetUid === userUid));
+                myNotifs.sort((a, b) => (b.date > a.date) ? 1 : -1);
+                const lastReadTime = parseInt(localStorage.getItem('last_notification_read_time') || '0', 10);
+                let unreadCount = 0;
+                if (myNotifs.length > 0 && new Date(myNotifs[0].date).getTime() > lastReadTime) unreadCount = 1;
+                updateNotificationBadge(unreadCount);
+                window.myNotifications = myNotifs;
+            });
+        }
+
+        function updateNotificationBadge(count) {
+            document.querySelectorAll('.notification-badge').forEach(b => b.style.display = (count > 0) ? 'block' : 'none');
+        }
+
+        window.openNotifications = function () {
+            localStorage.setItem('last_notification_read_time', Date.now().toString());
+            updateNotificationBadge(0);
+            goToScreen('notifications-screen');
+            const list = document.getElementById('notification-list');
+            if (!window.myNotifications || window.myNotifications.length === 0) {
+                list.innerHTML = '<div class="empty-state"><i class="fas fa-bell-slash"></i><p>No notifications yet.</p></div>';
+                return;
+            }
+            list.innerHTML = '';
+            window.myNotifications.forEach(n => {
+                const time = n.date ? new Date(n.date).toLocaleDateString() : '';
+                let isPersonal = n.targetUid && n.targetUid !== 'ALL';
+                let borderColor = isPersonal ? '#a371f7' : 'var(--primary)';
+                let tagHtml = isPersonal ? '<span class="notif-tag">PERSONAL</span>' : '';
+                list.innerHTML += `
+                <div class="notification-item" style="border-left-color: ${borderColor};">
+                    <div class="notif-header">
+                        <div class="notif-title">${tagHtml}${n.title || 'Notification'}</div>
+                        <div class="notif-time">${time}</div>
+                    </div>
+                    <div class="notif-body">${n.body || ''}</div>
+                </div>`;
+            });
+        };
+
+        // ===== NAVIGATION =====
+        const screens = document.querySelectorAll('.screen');
+        const navItems = document.querySelectorAll('.bottom-nav .nav-item');
+        const bottomNavBar = document.getElementById('bottom-nav-bar');
+
+        function switchScreen(screenId) {
+            screens.forEach(s => s.classList.remove('active'));
+            const target = document.getElementById(screenId);
+            if (target) target.classList.add('active');
+            if (bottomNavBar) {
+                if (['welcome-screen', 'login-screen', 'signup-screen'].includes(screenId)) bottomNavBar.classList.remove('visible');
+                else bottomNavBar.classList.add('visible');
+            }
+        }
+
+        function setActiveNav(activeItem) {
+            navItems.forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.menu-nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (activeItem && item.getAttribute('data-screen') === activeItem.getAttribute('data-screen')) item.classList.add('active');
+            });
+            if (activeItem) activeItem.classList.add('active');
+        }
+
+        window.navigateToScreen = (screenId) => {
+            const navItem = document.querySelector(`.menu-nav-item[data-screen="${screenId}"]`);
+            if (navItem) {
+                const bottomNavItem = document.getElementById(`nav-${screenId.split('-')[0]}`);
+                if (bottomNavItem) setActiveNav(bottomNavItem);
+                document.querySelectorAll('.menu-nav-item').forEach(item => item.classList.remove('active'));
+                navItem.classList.add('active');
+            }
+            goToScreen(screenId);
+            toggleSideMenu(false);
+        };
+
+        window.goToScreen = (screenId) => {
+            if (screenId !== 'recharge-step-3') stopPaymentTimer();
+            document.querySelectorAll('.modal-overlay').forEach(el => {
+                if (el.id !== 'update-modal') el.classList.remove('active');
+            });
+            switchScreen(screenId);
+            updateBalanceDisplay();
+
+            if (screenId === 'wallet-screen') loadTransactionHistory('deposit');
+            if (screenId === 'profile-screen') loadUserData();
+            if (screenId === 'leaderboard-screen') initLeaderboardListener();
+
+            const base = screenId.split('-')[0];
+            const navEl = document.getElementById(`nav-${base}`);
+            if (navEl) {
+                navItems.forEach(n => n.classList.remove('active'));
+                navEl.classList.add('active');
+            }
+        };
+
+        window.toggleSideMenu = (forceState) => {
+            const menu = document.getElementById('side-menu');
+            const overlay = document.getElementById('side-menu-overlay');
+            const isOpen = menu.classList.contains('open');
+            if (forceState === true || (!isOpen && forceState !== false)) {
+                menu.classList.add('open'); overlay.classList.add('active');
+            } else {
+                menu.classList.remove('open'); overlay.classList.remove('active');
+            }
+        };
+
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const screenId = item.getAttribute('data-screen');
+                if (screenId) { setActiveNav(item); goToScreen(screenId); }
+            });
+        });
+
+        // ===== MATCH DETAILS & DIRECT GALLERY UPLOAD =====
+        let lastRoomState = false;
+
+        window.showMatchDetails = (matchId) => {
+            hideSeatSelectionModal();
+            window.currentMatchId = matchId;
+            const data = window.matchData[matchId];
+            if (!data) return alert("Match data not found!");
+
+            document.querySelector('#match-details-screen .header-title').textContent = data.title || 'Match';
+            const img = document.getElementById('md-image');
+            if (img) { img.style.display = 'block'; img.src = data.gameImage || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80'; }
+            const icon = document.getElementById('md-game-icon');
+            if (icon) { icon.style.display = 'block'; icon.src = data.gameImage || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=200&q=80'; }
+
+            setText('md-title', data.title || '');
+            setText('md-date-time', data.date || '');
+            setText('md-prize-pool', `₹${data.pricePool || 0}`);
+            setText('md-per-kill', `₹${data.perKill || 0}`);
+            setText('md-entry-fee', `₹${data.entryFee || 0}`);
+            setText('md-type', data.type || 'Solo');
+            setText('md-version', data.version || 'Battle Royale');
+            setText('md-map', data.map || 'Bermuda');
+            setText('md-1st-prize', `₹${data.prizeFirst || 0}`);
+            setText('md-2nd-prize', `₹${data.prizeSecond || 0}`);
+            setText('md-3rd-prize', `₹${data.prizeThird || 0}`);
+            setText('rules-text-content', data.rules || "No rules specified for this match.");
+
+            if (currentMatchUnsubscribe) currentMatchUnsubscribe();
+            const matchRef = doc(db, "matches", matchId);
+            lastRoomState = data.isRoomIDRevealed;
+
+            currentMatchUnsubscribe = onSnapshot(matchRef, (docSnap) => {
+                if (!docSnap.exists()) return;
+                const mData = docSnap.data();
+                window.matchData[matchId] = { ...mData, id: matchId };
+
+                const bookedSeats = mData.bookedSeats || [];
+                const joined = bookedSeats.length;
+                const capacity = mData.totalSeats || 48;
+                const availableSlots = Math.max(0, capacity - joined);
+                const progressPercent = Math.min(100, (joined / capacity) * 100);
+                const isUserJoined = (window.currentUserData && window.currentUserData.joinedMatches) ? window.currentUserData.joinedMatches.includes(matchId) : false;
+
+                if (isUserJoined && !lastRoomState && mData.isRoomIDRevealed) {
+                    alert(`🔔 Room ID for "${mData.title}" has been published! Check details now.`);
+                }
+                lastRoomState = mData.isRoomIDRevealed;
+
+                document.getElementById('md-player-progress-bar').style.width = `${progressPercent}%`;
+                setText('md-player-count', `${joined}/${capacity}`);
+                setText('md-players-left-text', `${availableSlots} slots left`);
+
+                const oldBtn = document.getElementById('md-join-button');
+                const joinButton = oldBtn.cloneNode(true);
+                oldBtn.parentNode.replaceChild(joinButton, oldBtn);
+                joinButton.className = 'md-join-button';
+
+                if (isUserJoined) {
+                    joinButton.textContent = 'JOINED';
+                    joinButton.onclick = () => showRoomDetails(matchId);
+                    joinButton.classList.add('joined');
+                } else if (availableSlots < (mData.teamSize || 1)) {
+                    joinButton.textContent = 'FULL';
+                    joinButton.classList.add('disabled');
+                    joinButton.disabled = true;
+                } else {
+                    joinButton.textContent = 'JOIN';
+                    joinButton.onclick = () => showSeatSelectionModal();
+                    joinButton.classList.add('available');
+                }
+            });
+
+            goToScreen('match-details-screen');
+        };
+
+        window.showRulesModal = () => document.getElementById('rules-modal').classList.add('active');
+        window.hideRulesModal = () => document.getElementById('rules-modal').classList.remove('active');
+
+        function showRoomDetails(matchId) {
+            const data = window.matchData[matchId];
+            if (!data) return;
+            setText('joined-match-title', data.title || '');
+            const roomTextDisplay = document.getElementById('joined-room-text-display');
+            const idContainer = document.getElementById('joined-room-id-container');
+            const passContainer = document.getElementById('joined-room-pass-container');
+            if (data.isRoomIDRevealed) {
+                roomTextDisplay.style.display = 'none';
+                idContainer.style.display = 'block';
+                passContainer.style.display = 'block';
+                setText('display-room-id', data.roomId || 'N/A');
+                setText('display-room-pass', data.roomPass || 'N/A');
+            } else {
+                roomTextDisplay.style.display = 'block';
+                roomTextDisplay.textContent = data.roomDetailsText || "Wait for Room ID to be published.";
+                idContainer.style.display = 'none';
+                passContainer.style.display = 'none';
+            }
+            goToScreen('match-joined-screen');
+        }
+
+        // Image Compression & Direct Gallery File Select
+        window.handleScreenshotFileSelect = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const maxDim = 800;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > maxDim) { height *= maxDim / width; width = maxDim; }
+                    } else {
+                        if (height > maxDim) { width *= maxDim / height; height = maxDim; }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    window.selectedCompressedScreenshot = compressedDataUrl;
+
+                    const previewImg = document.getElementById('screenshot-preview');
+                    previewImg.src = compressedDataUrl;
+                    previewImg.style.display = 'block';
+                    setText('upload-box-label', 'Image Selected! Tap to change');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.submitMatchResult = async function() {
+            if (!window.selectedCompressedScreenshot) return alert("Please select a screenshot image first.");
+            if (!window.currentMatchId || !window.currentUserData) return alert("Match or user session error.");
+
+            const btn = document.getElementById('submit-ss-btn');
+            btn.disabled = true;
+            btn.textContent = "Uploading...";
+
+            try {
+                const matchObj = window.matchData[window.currentMatchId] || {};
+                await addDoc(collection(db, "match_results"), {
+                    matchId: window.currentMatchId,
+                    matchTitle: matchObj.title || "Tournament Match",
+                    uid: window.currentUserData.uid || auth.currentUser.uid,
+                    userName: window.currentUserData.name || "User",
+                    screenshotData: window.selectedCompressedScreenshot,
+                    status: 'pending',
+                    timestamp: Date.now()
+                });
+                alert("✅ Screenshot uploaded successfully! Admin will check it and add your winnings.");
+                window.selectedCompressedScreenshot = "";
+                document.getElementById('screenshot-preview').style.display = 'none';
+                setText('upload-box-label', 'Tap to Select Screenshot from Gallery');
+                goToScreen('home-screen');
+            } catch (e) {
+                alert("Error uploading screenshot: " + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Upload & Submit Result";
+            }
+        };
+
+        // ===== SEAT SELECTION =====
+        window.showSeatSelectionModal = () => {
+            const data = window.matchData[window.currentMatchId];
+            if (!data) return alert("Match not found.");
+            const bookedSeats = data.bookedSeats || [];
+            const capacity = data.totalSeats || 48;
+            let teamSize = data.teamSize || (data.type && data.type.includes('Squad') ? 4 : (data.type && data.type.includes('Duo') ? 2 : 1));
+
+            const seatGrid = document.getElementById('seat-grid');
+            const confirmBtn = document.getElementById('confirm-seats-btn');
+            setText('modal-team-size', teamSize);
+            setText('modal-team-size-2', teamSize);
+
+            const info = document.getElementById('modal-selected-seats-info');
+            info.innerHTML = teamSize === 1
+                ? `Select any <span style="color: var(--primary-dark); font-weight: 700;">1</span> available seat.`
+                : `Select a starting seat to book a block of <span style="color: var(--primary-dark); font-weight: 700;">${teamSize}</span> seats.`;
+
+            confirmBtn.disabled = true;
+            window.selectedSeatBlock = [];
+            let seatsHtml = [];
+            for (let i = 1; i <= capacity; i++) {
+                const isOccupied = bookedSeats.includes(i);
+                let statusClass = isOccupied ? 'occupied' : 'available';
+                let canStartBlock = !isOccupied && (i + teamSize - 1 <= capacity);
+                if (canStartBlock) {
+                    for (let j = 0; j < teamSize; j++) {
+                        if (bookedSeats.includes(i + j)) { canStartBlock = false; break; }
+                    }
+                }
+                const clickAction = canStartBlock ? `onclick="selectSeatBlock(${i}, ${teamSize})"` : 'disabled';
+                seatsHtml.push(`<button class="seat-btn ${statusClass}" ${clickAction} data-seat-number="${i}">${i}</button>`);
+            }
+            seatGrid.innerHTML = seatsHtml.join('');
+            document.getElementById('seat-selection-modal').classList.add('active');
+        };
+
+        window.selectSeatBlock = (startSeat, teamSize) => {
+            const seatGrid = document.getElementById('seat-grid');
+            const confirmBtn = document.getElementById('confirm-seats-btn');
+            seatGrid.querySelectorAll('.seat-btn').forEach(seat => { if (!seat.classList.contains('occupied')) seat.classList.remove('selected'); });
+            window.selectedSeatBlock = [];
+            for (let i = 0; i < teamSize; i++) {
+                const seatElement = seatGrid.querySelector(`[data-seat-number="${startSeat + i}"]`);
+                if (seatElement && !seatElement.classList.contains('occupied')) {
+                    seatElement.classList.add('selected');
+                    window.selectedSeatBlock.push(startSeat + i);
+                }
+            }
+            if (window.selectedSeatBlock.length === teamSize) {
+                confirmBtn.disabled = false;
+                document.getElementById('modal-selected-seats-info').innerHTML = `Selected Seats: <span style="color: var(--primary-dark); font-weight: 700;">${window.selectedSeatBlock.join(', ')}</span>`;
+            } else {
+                confirmBtn.disabled = true;
+                window.selectedSeatBlock = [];
+            }
+        };
+
+        window.goToFormFromSeats = () => {
+            const data = window.matchData[window.currentMatchId];
+            if (!data || window.selectedSeatBlock.length === 0) return;
+            setText('join-form-match-title', data.title || '');
+            document.getElementById('join-form-match-info').innerHTML = `Entry Fee: <span style="color: var(--primary-dark); font-weight: 700;">₹${data.entryFee}.00</span> | Seats: <span style="color: var(--info); font-weight: 700;">${window.selectedSeatBlock.join(', ')}</span>`;
+            setText('selected-seats-text', window.selectedSeatBlock.join(', '));
+            hideSeatSelectionModal();
+            goToScreen('match-join-form-screen');
+        };
+
+        window.hideSeatSelectionModal = () => document.getElementById('seat-selection-modal').classList.remove('active');
+
+        window.processJoin = async (matchId) => {
+            try {
+                const data = window.matchData[matchId];
+                if (!data) return alert("Match not found.");
+                const gameUid = document.getElementById('game-uid').value.trim();
+                const username = document.getElementById('username').value.trim();
+                if (!gameUid || !username) return alert('Please fill in your Game UID and Username.');
+
+                const currentDeposit = parseFloat(window.currentUserData.deposit || 0);
+                const currentWinnings = parseFloat(window.currentUserData.winnings || 0);
+                const total = currentDeposit + currentWinnings;
+                if (total < data.entryFee) {
+                    return alert(`Insufficient balance. Please recharge ₹${(data.entryFee - total).toFixed(2)} to join.`);
+                }
+
+                const btn = document.getElementById('confirm-join-btn');
+                btn.disabled = true; btn.textContent = "Joining...";
+
+                let remainingFee = data.entryFee;
+                let deductDeposit = 0, deductWinnings = 0;
+                if (currentDeposit >= remainingFee) deductDeposit = remainingFee;
+                else { deductDeposit = currentDeposit; remainingFee -= currentDeposit; deductWinnings = remainingFee; }
+
+                const userAuthId = auth.currentUser.uid;
+                await updateDoc(doc(db, "users", userAuthId), {
+                    deposit: increment(-deductDeposit),
+                    winnings: increment(-deductWinnings),
+                    balance: increment(-(deductDeposit + deductWinnings)),
+                    joinedMatches: arrayUnion(matchId)
+                });
+
+                await updateDoc(doc(db, "matches", matchId), {
+                    bookedSeats: arrayUnion(...window.selectedSeatBlock),
+                    participants: arrayUnion({
+                        userId: userAuthId,
+                        displayUid: window.currentUserData.uid || "N/A",
+                        name: window.currentUserData.name || "User",
+                        gameName: username,
+                        gameUid: gameUid,
+                        seats: window.selectedSeatBlock,
+                        paid: data.entryFee
+                    })
+                });
+
+                setText('joined-seats-list', window.selectedSeatBlock.join(', '));
+                setText('joined-match-title', data.title || '');
+                showRoomDetails(matchId);
+                window.selectedSeatBlock = [];
+                document.getElementById('game-uid').value = '';
+                document.getElementById('username').value = '';
+                btn.disabled = false; btn.textContent = "Confirm & Join";
+            } catch (e) {
+                alert("Error joining match: " + e.message);
+                const btn = document.getElementById('confirm-join-btn');
+                btn.disabled = false; btn.textContent = "Confirm & Join";
+            }
+        };
+
+        // ===== WITHDRAWAL (ONLY UPI) =====
+        window.showWithdrawalModal = () => document.getElementById('withdrawal-modal').classList.add('active');
+        window.hideWithdrawalModal = () => document.getElementById('withdrawal-modal').classList.remove('active');
+
+        window.submitWithdrawal = async () => {
+            try {
+                const amount = parseFloat(document.getElementById('withdraw-amount').value);
+                const details = document.getElementById('withdraw-details').value.trim();
+                
+                if (!details || !details.includes('@')) {
+                    return alert("Please enter a valid UPI ID (e.g. name@upi or number@ybl). Only UPI withdrawals are supported.");
+                }
+                if (isNaN(amount) || amount < 50) return alert('Minimum withdrawal amount is ₹50.');
+                if (!window.currentUserData || amount > window.currentUserData.winnings) return alert("Insufficient winnings balance.");
+
+                const btn = document.getElementById('withdraw-submit-btn');
+                btn.disabled = true; btn.textContent = "Processing...";
+
+                await updateDoc(doc(db, "users", auth.currentUser.uid), {
+                    winnings: increment(-amount),
+                    balance: increment(-amount)
+                });
+                await addDoc(collection(db, "withdrawal_requests"), {
+                    uid: (window.currentUserData.uid || auth.currentUser.uid),
+                    userName: window.currentUserData.name || "User",
+                    email: window.currentUserData.email || "No Email",
+                    amount: amount, 
+                    method: "UPI: " + details,
+                    status: 'pending', 
+                    timestamp: Date.now()
+                });
+                alert(`Withdrawal of ₹${amount.toFixed(2)} to UPI (${details}) submitted!`);
+                document.getElementById('withdraw-amount').value = '';
+                document.getElementById('withdraw-details').value = '';
+                hideWithdrawalModal();
+                btn.disabled = false; btn.textContent = "Withdraw via UPI";
+            } catch (e) {
+                alert("Error: " + e.message);
+                const btn = document.getElementById('withdraw-submit-btn');
+                btn.disabled = false; btn.textContent = "Withdraw via UPI";
+            }
+        };
+
+        // ===== DYNAMIC QR & 5-MINUTE TIMER LOGIC =====
+        function startPaymentTimer(durationSeconds = 300) {
+            stopPaymentTimer();
+            let remaining = durationSeconds;
+            const display = document.getElementById('payment-timer-display');
+
+            const updateClock = () => {
+                const mins = Math.floor(remaining / 60);
+                const secs = remaining % 60;
+                if (display) {
+                    display.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                }
+                if (remaining <= 0) {
+                    stopPaymentTimer();
+                    alert("⏳ Payment session expired (5 minutes over). Please generate a new QR code.");
+                    goToScreen('wallet-screen');
+                }
+                remaining--;
+            };
+
+            updateClock();
+            paymentTimerInterval = setInterval(updateClock, 1000);
+        }
+
+        function stopPaymentTimer() {
+            if (paymentTimerInterval) {
+                clearInterval(paymentTimerInterval);
+                paymentTimerInterval = null;
+            }
+        }
+
+        window.cancelRechargePayment = () => {
+            stopPaymentTimer();
+            goToScreen('wallet-screen');
+        };
+
+        window.goToRechargeStep = (step) => {
+            if (step === 1) {
+                stopPaymentTimer();
+                goToScreen('recharge-step-1');
+                const el = document.getElementById('custom-recharge-amount');
+                if (el) el.value = window.currentRechargeAmount;
+            } else if (step === 2) {
+                const val = parseFloat(document.getElementById('custom-recharge-amount').value);
+                if (!isNaN(val) && val >= 20 && val <= 3000) {
+                    window.currentRechargeAmount = val;
+                } else {
+                    return alert('Please enter an amount between ₹20 and ₹3000.');
+                }
+                setText('display-recharge-amount-2', window.currentRechargeAmount);
+                goToScreen('recharge-step-2');
+            } else if (step === 3) {
+                const selectedMethodEl = document.querySelector('#recharge-step-2 .payment-method.selected');
+                const selectedMethod = selectedMethodEl ? selectedMethodEl.getAttribute('data-method') : 'UPI / QR';
+                const amt = window.currentRechargeAmount;
+
+                let finalUpi = DEFAULT_UPI_ID;
+                if (window.appSettings.payments) {
+                    if (selectedMethod === 'Paytm' && window.appSettings.payments.paytm && window.appSettings.payments.paytm.upi) {
+                        finalUpi = window.appSettings.payments.paytm.upi;
+                    } else if (selectedMethod === 'Google Pay' && window.appSettings.payments.gpay && window.appSettings.payments.gpay.upi) {
+                        finalUpi = window.appSettings.payments.gpay.upi;
+                    } else if (window.appSettings.payments.phonepe && window.appSettings.payments.phonepe.upi) {
+                        finalUpi = window.appSettings.payments.phonepe.upi;
+                    }
+                }
+
+                const upiIntentUrl = `upi://pay?pa=${encodeURIComponent(finalUpi)}&pn=${encodeURIComponent("Free Fire Pro League")}&am=${amt}&cu=INR`;
+                const dynamicQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=10&data=${encodeURIComponent(upiIntentUrl)}`;
+
+                setText('payment-mode-display', selectedMethod);
+                setText('upi-id-display', finalUpi);
+                setText('display-recharge-amount-3', amt);
+                setText('btn-pay-amount', amt);
+
+                const qrImg = document.getElementById('qr-code-image');
+                if (qrImg) qrImg.src = dynamicQrUrl;
+
+                const directLink = document.getElementById('direct-upi-link');
+                if (directLink) directLink.href = upiIntentUrl;
+
+                goToScreen('recharge-step-3');
+                startPaymentTimer(300);
+            }
+        };
+
+        window.submitRecharge = async () => {
+            try {
+                const utr = document.getElementById('utr-input').value.trim();
+                if (!utr || utr.length < 8) return alert("Please enter a valid 12-digit UTR / Transaction ID.");
+                if (!window.currentUserData) return alert("Please wait, profile is loading...");
+
+                const btn = document.getElementById('submit-recharge-btn');
+                btn.disabled = true; btn.textContent = "Submitting...";
+
+                await addDoc(collection(db, "deposit_requests"), {
+                    uid: (window.currentUserData.uid || auth.currentUser.uid),
+                    userDocId: auth.currentUser.uid,
+                    userName: window.currentUserData.name || "User",
+                    email: window.currentUserData.email || "No Email",
+                    amount: window.currentRechargeAmount,
+                    utr: utr,
+                    method: document.getElementById('payment-mode-display').textContent,
+                    status: 'pending',
+                    timestamp: Date.now()
+                });
+
+                stopPaymentTimer();
+                alert("✅ Recharge request submitted! Balance will be added after verification.");
+                document.getElementById('utr-input').value = '';
+                goToScreen('wallet-screen');
+                loadTransactionHistory('deposit');
+            } catch (e) {
+                alert("Error submitting recharge: " + e.message);
+            } finally {
+                const btn = document.getElementById('submit-recharge-btn');
+                btn.disabled = false; btn.textContent = "Submit UTR";
+            }
+        };
+
+        document.querySelectorAll('#recharge-step-2 .payment-method').forEach(el => {
+            el.addEventListener('click', () => {
+                document.querySelectorAll('#recharge-step-2 .payment-method').forEach(m => m.classList.remove('selected'));
+                el.classList.add('selected');
+            });
+        });
+
+        document.querySelectorAll('.amount-option-btn').forEach(el => {
+            el.addEventListener('click', () => {
+                document.querySelectorAll('.amount-option-btn').forEach(b => b.classList.remove('selected'));
+                el.classList.add('selected');
+                document.getElementById('custom-recharge-amount').value = el.getAttribute('data-amount');
+            });
+        });
+
+        document.getElementById('recharge-step-1-next').addEventListener('click', () => goToRechargeStep(2));
+        document.getElementById('recharge-step-2-next').addEventListener('click', () => goToRechargeStep(3));
+
+        setTimeout(() => {
+            if (!window.currentUserData && !document.querySelector('.screen.active')) {
+                goToScreen('welcome-screen');
+            }
+        }, 100);
+    </script>
+</body>
+</html>
